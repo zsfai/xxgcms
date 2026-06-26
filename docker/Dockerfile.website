@@ -1,0 +1,45 @@
+FROM python:3.12-slim
+
+LABEL org.opencontainers.image.title="xxgcms/website"
+LABEL org.opencontainers.image.description="xxg-cms Django public website (uWSGI)"
+
+ARG USE_CN_MIRROR=1
+ARG APT_MIRROR=mirrors.aliyun.com
+ARG PIP_INDEX_URL=https://pypi.tuna.tsinghua.edu.cn/simple
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_INDEX_URL=${PIP_INDEX_URL} \
+    PIP_TRUSTED_HOST=pypi.tuna.tsinghua.edu.cn
+
+COPY docker/scripts/debian-apt-cn.sh /tmp/debian-apt-cn.sh
+RUN if [ "${USE_CN_MIRROR}" = "1" ]; then chmod +x /tmp/debian-apt-cn.sh && APT_MIRROR="${APT_MIRROR}" /tmp/debian-apt-cn.sh; fi \
+    && apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpcre2-dev \
+    default-libmysqlclient-dev \
+    pkg-config \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# 仅 website Python 应用
+COPY website/requirements.txt ./requirements.txt
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+COPY website/ ./
+COPY docker/scripts/wait-for-mysql.sh \
+     docker/scripts/sync-env-from-config.sh \
+     docker/scripts/entrypoint-website.sh \
+     /docker/scripts/
+COPY docker/uwsgi/website.ini /docker/uwsgi/website.ini
+
+RUN chmod +x /docker/scripts/*.sh \
+    && mkdir -p /var/log/xxgcms
+
+ENV DJANGO_SETTINGS_MODULE=apps.settings.prod
+
+EXPOSE 8003
+
+CMD ["/docker/scripts/entrypoint-website.sh"]

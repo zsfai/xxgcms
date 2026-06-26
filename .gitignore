@@ -1,0 +1,13 @@
+# Superpowers 规划/设计文档（本地 AI 协作产物，不纳入版本库）
+docs/superpowers/
+
+# Docker Compose 本地环境
+.env
+
+# 远程构建配置（含服务器地址，勿提交）
+scripts/offline-pack/deploy.env
+
+# 离线安装包（体积大，本地生成）
+xxgcms/
+xxgcms-[0-9]*.tar.gz
+xxgcms-src-*.tar.gz

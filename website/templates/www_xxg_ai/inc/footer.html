@@ -1,0 +1,19 @@
+{% load static %}
+<footer id="footer">
+    {% with site_info.theme_dir|add:"/inc/links.html" as links_templ %}
+        {% include links_templ %}
+    {% endwith %}
+    <div id="copyright">
+        &copy; {% now "Y" %} {{ site_info.site_name }} All Rights Reserved
+    </div>
+</footer>
+
+{% with site_info.theme_dir|add:"/inc/back_top.html" as back_top_templ %}
+    {% include back_top_templ %}
+{% endwith %}
+
+<script src="{% static 'js/comm.js' %}"></script>
+
+{% with site_info.theme_dir|add:"/inc/tongji.html" as tongji_templ %}
+    {% include tongji_templ %}
+{% endwith %}

@@ -1,0 +1,13 @@
+**/.git
+**/.venv
+**/__pycache__
+**/*.pyc
+**/.env
+**/.credentials
+**/node_modules
+admin-frontend/dist
+admin-backend/xxgcms_static_files
+docs/superpowers
+.cursor
+*.plan.md
+**/.DS_Store

@@ -1,0 +1,246 @@
+@import 'react-day-picker/style.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Shopify Polaris–inspired neutrals; green reserved for primary actions */
+    --background: oklch(0.975 0.002 264);
+    --foreground: oklch(0.22 0.012 264);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.22 0.012 264);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.22 0.012 264);
+    --primary: oklch(0.52 0.11 166);
+    --primary-foreground: oklch(0.99 0.01 166);
+    --secondary: oklch(0.955 0.002 264);
+    --secondary-foreground: oklch(0.22 0.012 264);
+    --muted: oklch(0.955 0.002 264);
+    --muted-foreground: oklch(0.52 0.012 264);
+    --accent: oklch(0.955 0.002 264);
+    --accent-foreground: oklch(0.22 0.012 264);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(0.905 0.003 264);
+    --input: oklch(0.905 0.003 264);
+    --ring: oklch(0.52 0.11 166);
+    --chart-1: oklch(0.868 0.007 39.5);
+    --chart-2: oklch(0.547 0.021 43.1);
+    --chart-3: oklch(0.438 0.017 39.3);
+    --chart-4: oklch(0.367 0.016 35.7);
+    --chart-5: oklch(0.268 0.011 36.5);
+    --radius: 0.5rem;
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+    --sidebar: oklch(1 0 0);
+    --sidebar-foreground: oklch(0.22 0.012 264);
+    --sidebar-primary: oklch(0.52 0.11 166);
+    --sidebar-primary-foreground: oklch(0.99 0.01 166);
+    --sidebar-accent: oklch(0.96 0.02 166);
+    --sidebar-accent-foreground: oklch(0.35 0.08 166);
+    --sidebar-border: oklch(0.905 0.003 264);
+    --sidebar-ring: oklch(0.52 0.11 166);
+  }
+
+  .dark {
+    --background: oklch(0.147 0.004 49.3);
+    --foreground: oklch(0.986 0.002 67.8);
+    --card: oklch(0.214 0.009 43.1);
+    --card-foreground: oklch(0.986 0.002 67.8);
+    --popover: oklch(0.214 0.009 43.1);
+    --popover-foreground: oklch(0.986 0.002 67.8);
+    --primary: oklch(0.55 0.12 166);
+    --primary-foreground: oklch(0.99 0.01 166);
+    --secondary: oklch(0.274 0.006 286.033);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.268 0.011 36.5);
+    --muted-foreground: oklch(0.714 0.014 41.2);
+    --accent: oklch(0.268 0.011 36.5);
+    --accent-foreground: oklch(0.986 0.002 67.8);
+    --destructive: oklch(0.704 0.191 22.216);
+    --destructive-foreground: oklch(0.985 0 0);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.55 0.12 166);
+    --chart-1: oklch(0.868 0.007 39.5);
+    --chart-2: oklch(0.547 0.021 43.1);
+    --chart-3: oklch(0.438 0.017 39.3);
+    --chart-4: oklch(0.367 0.016 35.7);
+    --chart-5: oklch(0.268 0.011 36.5);
+    --sidebar: oklch(0.18 0.008 264);
+    --sidebar-foreground: oklch(0.986 0.002 67.8);
+    --sidebar-primary: oklch(0.268 0.011 36.5);
+    --sidebar-primary-foreground: oklch(0.986 0.002 67.8);
+    --sidebar-accent: oklch(0.268 0.011 36.5);
+    --sidebar-accent-foreground: oklch(0.986 0.002 67.8);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.55 0.12 166);
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body,
+  #root {
+    @apply h-full w-full;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-family:
+      'Plus Jakarta Sans',
+      'Noto Sans SC Variable',
+      ui-sans-serif,
+      system-ui,
+      sans-serif,
+      'Apple Color Emoji',
+      'Segoe UI Emoji',
+      'Segoe UI Symbol',
+      'Noto Color Emoji';
+    font-optical-sizing: auto;
+  }
+}
+
+@layer components {
+  .layout-content-main {
+    @apply flex-1 overflow-auto py-6 pl-8 pr-6;
+  }
+
+  .content-panel {
+    @apply overflow-hidden rounded-2xl border bg-card shadow-sm;
+  }
+
+  .table-scroll-panel {
+    @apply min-w-0 overflow-x-auto overflow-y-visible;
+  }
+
+  .table-scroll-panel > div {
+    @apply overflow-visible;
+  }
+
+  .layout-header {
+    @apply flex h-14 shrink-0 items-center border-b border-border bg-card px-4;
+  }
+
+  .sidebar-brand-mark {
+    @apply flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground shadow-sm;
+  }
+
+  .sidebar-nav-active {
+    @apply rounded-xl bg-primary font-medium text-primary-foreground;
+  }
+
+  .highlight-text {
+    @apply font-medium text-primary;
+  }
+
+  .table-action-icon {
+    @apply h-8 w-8 shrink-0;
+  }
+
+  .table-action-icon-sm {
+    @apply h-7 w-7 shrink-0;
+  }
+
+  .table-action-icon-danger {
+    @apply h-8 w-8 shrink-0 text-destructive;
+  }
+
+  .table-action-icon-danger:hover {
+    background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+    border-color: color-mix(in oklch, var(--destructive) 30%, transparent);
+    color: var(--destructive);
+  }
+
+  .table-action-icon-sm-danger {
+    @apply h-7 w-7 shrink-0 text-destructive;
+  }
+
+  .table-action-icon-sm-danger:hover {
+    background-color: color-mix(in oklch, var(--destructive) 10%, transparent);
+    border-color: color-mix(in oklch, var(--destructive) 30%, transparent);
+    color: var(--destructive);
+  }
+
+  .dialog-form-row {
+    @apply grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-4;
+  }
+
+  .dialog-form-row > label,
+  .dialog-form-row > .form-field-label,
+  .dialog-form-row-wide > label,
+  .dialog-form-row-wide > .form-field-label {
+    @apply flex w-full shrink-0 items-center justify-end gap-0.5 self-center text-right !font-normal;
+  }
+
+  .dialog-form-row-top {
+    @apply grid grid-cols-[7rem_minmax(0,1fr)] items-start gap-x-4;
+  }
+
+  .dialog-form-row-top.dialog-form-row-compact {
+    @apply grid-cols-[4.5rem_minmax(0,1fr)] gap-x-3;
+  }
+
+  .dialog-form-row-top > label,
+  .dialog-form-row-top > .form-field-label,
+  .dialog-form-row-wide-top > label,
+  .dialog-form-row-wide-top > .form-field-label {
+    @apply flex w-full shrink-0 items-start justify-end gap-0.5 self-start pt-2 text-right !font-normal;
+  }
+
+  .dialog-form-row-wide {
+    @apply grid grid-cols-[7rem_minmax(0,1fr)] items-center gap-x-4;
+  }
+
+  .dialog-form-row-wide-top {
+    @apply grid grid-cols-[7rem_minmax(0,1fr)] items-start gap-x-4;
+  }
+
+  .dialog-form-narrow .dialog-form-row,
+  .dialog-form-narrow .dialog-form-row-top,
+  .dialog-form-narrow .dialog-form-row-wide,
+  .dialog-form-narrow .dialog-form-row-wide-top {
+    @apply grid-cols-[6rem_minmax(0,1fr)] gap-x-3;
+  }
+
+  .table-sticky-action-head {
+    @apply sticky right-0 z-20 border-l border-border bg-card;
+    box-shadow: -4px 0 8px -4px color-mix(in oklch, var(--foreground) 8%, transparent);
+  }
+
+  .table-sticky-action-cell {
+    @apply sticky right-0 z-10 border-l border-border bg-card;
+    box-shadow: -4px 0 8px -4px color-mix(in oklch, var(--foreground) 8%, transparent);
+  }
+
+  .rich-text-editor-borderless {
+    @apply flex min-h-0 flex-1 flex-col;
+  }
+
+  .rich-text-editor-borderless .rich-text-editor-body {
+    @apply min-h-0 flex-1;
+  }
+
+  .rich-text-editor-borderless .w-e-text-container {
+    height: 100% !important;
+  }
+
+  /* wangEditor 全屏时需盖住 Dialog（z-50）等元素 */
+  .w-e-full-screen-container {
+    z-index: 10050 !important;
+  }
+
+  .w-e-full-screen-container .w-e-toolbar {
+    z-index: 10051 !important;
+    flex-shrink: 0;
+  }
+}

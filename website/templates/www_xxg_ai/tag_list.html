@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+{% spaceless %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="applicable-device" content="pc,mobile">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <title>{{tag_info.kw}} - {{site_info.site_name}}</title>
+    <meta name="description" content=""/>
+    <link rel="canonical" href="https://{{host}}/tag/{{tag_info.kw_slug}}">
+    {% if site_info.favicon_url %}
+    <link rel="shortcut icon" href="/media/{{site_info.favicon_url}}" type="image/x-icon">
+    {% else %}
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    {% endif %}
+    <link href="{% static 'css/comm.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+</head>
+<body>
+{% with site_info.theme_dir|add:"/inc/header.html" as header_templ%}
+{% include header_templ %}
+{% endwith %}
+<div id="main-body" class="clearfix">
+    <div id="left">
+        <nav id="bread-nav">
+            <a href="/">Home</a> &gt;
+            <a href="/tag/{{tag_info.kw_slug}}">{{tag_info.kw}}</a> &gt;
+            <span>{{tag_info.kw}} Updated at {{latest_pub_time | date:"Y-m-d"}}</span>
+        </nav>
+        <ul id="article-list">
+            {% for d in article_list %}
+            <li class="article-item">
+                {% if d and d.p_cate_name_en %}
+                    {% if d.name_en %}
+                        <a class="article-img-a" href="/{{ d.p_cate_name_en }}/{{ d.name_en }}/{{ d.slug_url }}" title="{{ d.title }}">
+                    {% else %}
+                        <a class="article-img-a" href="/{{ d.name_en }}/{{ d.slug_url }}" title="{{ d.title }}">
+                    {% endif %}
+                {% elif d.name_en %}
+                    <a class="article-img-a" href="/{{ d.name_en }}/{{ d.slug_url }}" title="{{ d.title }}">
+                {% else %}
+                    <a class="article-img-a" href="/{{ d.slug_url }}" title="{{ d.title }}">
+                {% endif %}
+                    {% if d.pic_url %}
+                        <img src="{{ d.pic_url }}" class="article-img" alt="{{d.title}}"/>
+                    {% else %}
+                        <img src="/media/{{ site_info.defaul_pic_url }}" class="article-img" alt="Default image"/>
+                    {% endif %}
+                </a>
+                <div class="article-item__content">
+                    <h3 class="article-title">
+                        {% if d and d.p_cate_name_en %}
+                            {% if d.name_en %}
+                                <a class="article-title-a" href="/{{ d.p_cate_name_en }}/{{ d.name_en }}/{{ d.slug_url }}" title="{{ d.title_pure }}">
+                            {% else %}
+                                <a class="article-title-a" href="/{{ d.name_en }}/{{ d.slug_url }}" title="{{ d.title_pure }}">
+                            {% endif %}
+                        {% elif d.name_en %}
+                            <a class="article-title-a" href="/{{ d.name_en }}/{{ d.slug_url }}" title="{{ d.title_pure }}">
+                        {% else %}
+                            <a class="article-title-a" href="/{{ d.slug_url }}" title="{{ d.title_pure }}">
+                        {% endif %}
+                            {{ d.title | safe }}
+                        </a>
+                    </h3>
+                    <p class="desc just-pc">
+                        {{ d.desc }}...
+                    </p>
+                    <div class="other-info">
+                        <span class="other-info__span time">{{ d.pub_time | date:"Y-m-d"}}</span>
+                    </div>
+                    <div class="tags just-pc">
+                        {% for kw_item in d.kws %}
+                        <a class="tag-a" href="/tag/{{ kw_item.kw_slug }}" title="{{ kw_item.kw }}">{{ kw_item.kw }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% if related_tags %}
+    <aside class="sidebar just-pc">
+        <div class="tag-list">
+            <h2 class="h2">Related tags</h2>
+            <ul class="tag-list__ul">
+                {% for i in related_tags %}
+                <li class="txtover">
+                    <a href="/tag/{{ i.kw_slug }}" title="{{ i.kw }}">{{ i.kw }}</a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </aside>
+    {% endif %}
+</div>
+{% with site_info.theme_dir|add:"/inc/footer.html" as footer_templ%}
+{% include footer_templ %}
+{% endwith %}
+</body>
+{% endspaceless %}
+</html>

@@ -1,0 +1,8 @@
+{% if links %}
+<section id="friend-links" class="just-pc">
+    <h4 class="h4">Friend Links</h4>
+    {% for link in links %}
+        <a class="link-a" href="{{ link.click_url }}" target="_blank" title="{{ link.name }}">{{ link.name }}</a>
+    {% endfor %}
+</section>
+{% endif %}

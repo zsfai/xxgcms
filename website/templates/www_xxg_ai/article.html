@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+{% spaceless %}
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+        <meta name="applicable-device" content="pc,mobile">
+        <meta http-equiv="Cache-Control" content="no-transform"/>
+        <meta http-equiv="Cache-Control" content="no-siteapp"/>
+        <title>{{ article_info.title }} - {{ site_info.site_name }}</title>
+        <meta name="description" content="{{ article_info.desc }}"/>
+        {% if cate_info and cate_info.name_en %}
+            {% if cate_info.p_cate_name_en and cate_info.p_cate_name %}
+                <link rel="canonical" href="https://{{ host }}/{{ cate_info.p_cate_name_en }}/{{ cate_info.name_en }}/{{ article_info.slug_url }}">
+            {% else %}
+                <link rel="canonical" href="https://{{ host }}/{{ cate_info.name_en }}/{{ article_info.slug_url }}">
+            {% endif %}
+        {% else %}
+            <link rel="canonical" href="https://{{ host }}/{{ article_info.slug_url }}">
+        {% endif %}
+        {% if site_info and site_info.favicon_url %}
+            <link rel="shortcut icon" href="/media/{{ site_info.favicon_url }}" type="image/x-icon">
+        {% else %}
+            <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+        {% endif %}
+        <link href="{% static 'css/comm.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+        <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+    </head>
+    <body>
+    {% with site_info.theme_dir|add:"/inc/header.html" as header_templ %}
+        {% include header_templ %}
+    {% endwith %}
+    <div id="main-body" class="clearfix">
+        <div id="left">
+            <nav id="bread-nav">
+                <a href="/">Home</a> &gt;
+                {% if cate_info and cate_info.name_en %}
+                    {% if cate_info.p_cate_name_en and cate_info.p_cate_name %}
+                        <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_info.name_en }}/">{{ cate_info.name }}</a> &gt;
+                    {% else %}
+                        <a href="/{{ cate_info.name_en }}/">{{ cate_info.name }}</a> &gt;
+                    {% endif %}
+                {% endif %}
+                <span class="just-pc">{{ article_info.title }}</span>
+            </nav>
+            <article id="article">
+                <h1 class="h1">{{ article_info.title }}</h1>
+                <ul class="article-meta">
+                    <li class="meta-li">{{ site_info.site_name }}</li>
+                    <li class="meta-li">{{ article_info.pub_time | date:"Y-m-d" }}</li>
+                    {% if cate_info and cate_info.name_en %}
+                        <li class="meta-li just-pc">
+                            Category：
+                            {% if cate_info.p_cate_name_en and cate_info.p_cate_name %}
+                                <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_info.name_en }}/">{{ cate_info.name }}</a>
+                            {% else %}
+                                <a href="/{{ cate_info.name_en }}/">{{ cate_info.name }}</a>
+                            {% endif %}
+                        </li>
+                    {% endif %}
+                </ul>
+                {% autoescape off %}
+                    {{ article_info.content | linebreaksbr | safe }}
+                {% endautoescape %}
+                {% if cate_info and cate_info.name_en %}
+                    <p>
+                        The above is the full content of 
+                        {% if cate_info.p_cate_name_en and cate_info.p_cate_name %}
+                            <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_info.name_en }}/{{ article_info.slug_url }}">{{ article_info.title }}</a>
+                        {% else %}
+                            <a href="/{{ cate_info.name_en }}/{{ article_info.slug_url }}">{{ article_info.title }}</a>
+                        {% endif %}
+                    </p>
+                {% else %}
+                    <p>
+                        The above is the full content of <a href="/{{ article_info.slug_url }}">{{ article_info.title }}</a>
+                    </p>
+                {% endif %}
+            </article>
+            <nav id="article-pager">
+                <div class="pager-item txtover">
+                    Previous:
+                    {% if prev_article %}
+                        {% if prev_article.name_en %}
+                            {% if prev_article.p_cate_name_en and prev_article.p_cate_name %}
+                                <a class="pager-a prev"
+                                   href="/{{ prev_article.p_cate_name_en }}/{{ prev_article.name_en }}/{{ prev_article.slug_url }}">
+                            {% else %}
+                                <a class="pager-a prev"
+                                   href="/{{ prev_article.name_en }}/{{ prev_article.slug_url }}">
+                            {% endif %}
+                        {% else %}
+                            <a class="pager-a prev" href="/{{ prev_article.slug_url }}">
+                        {% endif %}
+                    {{ prev_article.title }}
+                    </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+                <div class="pager-item txtover">
+                    Next:
+                    {% if next_article %}
+                        {% if next_article.name_en %}
+                            {% if next_article.p_cate_name_en and next_article.p_cate_name %}
+                                <a class="pager-a next"
+                                   href="/{{ next_article.p_cate_name_en }}/{{ next_article.name_en }}/{{ next_article.slug_url }}">
+                            {% else %}
+                                <a class="pager-a next"
+                                   href="/{{ next_article.name_en }}/{{ next_article.slug_url }}">
+                            {% endif %}
+                        {% else %}
+                            <a class="pager-a prev" href="/{{ next_article.slug_url }}">
+                        {% endif %}
+                    {{ next_article.title }}
+                    </a>
+                    {% else %}
+                        None
+                    {% endif %}
+                </div>
+            </nav>
+            <div id="related-articles">
+                {% if kw_list %}
+                    <h4 class="h4">Others also read:</h4>
+                    <div id="artilce-tags">
+                        {% for i in kw_list %}
+                            <a href="/tag/{{ i.kw_slug }}" class="artilce-tag">{{ i.kw }}</a>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                <div class="r-item-wrapper">
+                    {% for d in related_articles %}
+                        <div class="r-item">
+                            {% if d and d.name_en %}
+                                {% if d.p_cate_name_en and d.p_cate_name %}
+                                    <a class="r-item-pic-c" href="/{{ d.p_cate_name_en }}/{{ d.name_en }}/{{ d.slug_url }}">
+                                {% else %}
+                                    <a class="r-item-pic-c" href="/{{ d.name_en }}/{{ d.slug_url }}">
+                                {% endif %}
+                            {% else %}
+                                <a class="r-item-pic-c" href="/{{ d.slug_url }}">
+                            {% endif %}
+                            {% if d.pic_url %}
+                                <img src="{{ d.pic_url }}" class="r-item-pic" alt="{{ d.title }}"/>
+                            {% else %}
+                                <img src="/media/{{ site_info.defaul_pic_url }}" class="r-item-pic" alt="Default image"/>
+                            {% endif %}
+                            </a>
+                            <h5 class="r-item-title">
+                                {% if d and d.name_en %}
+                                    {% if d.p_cate_name_en and d.p_cate_name %}
+                                        <a class="r-item-a" href="/{{ d.p_cate_name_en }}/{{ d.name_en }}/{{ d.slug_url }}">
+                                            {{ d.title }}
+                                        </a>
+                                    {% else %}
+                                        <a class="r-item-a" href="/{{ d.name_en }}/{{ d.slug_url }}">
+                                            {{ d.title }}
+                                        </a>
+                                    {% endif %}
+                                {% else %}
+                                    <a class="r-item-a" href="/{{ d.slug_url }}">
+                                        {{ d.title }}
+                                    </a>
+                                {% endif %}
+                            </h5>
+                            <div class="article-info">
+                                {% if d and d.name_en %}
+                                    {% if d.p_cate_name_en and d.p_cate_name %}
+                                        <a class="r-cate-a" href="/{{ d.p_cate_name_en }}/{{ d.name_en }}/">{{ d.cate_name }}</a>
+                                    {% else %}
+                                        <a class="r-cate-a" href="/{{ d.name_en }}/">{{ d.cate_name }}</a>
+                                    {% endif %}
+                                {% endif %}
+                                <span class="pub-time">{{ d.pub_time | date:"Y-m-d" }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        {% if hots %}
+        <aside class="sidebar just-pc">
+            <div class="tag-list">
+                <h2 class="h2">Latest articles</h2>
+                <ol class="hot-list__ol">
+                    {% for item in hots %}
+                        <li class="txtover">
+                            {% if item and item.name_en %}
+                                {% if item.p_cate_name_en and item.p_cate_name %}
+                                    <a href="/{{ item.p_cate_name_en }}/{{ item.name_en }}/{{ item.slug_url }}" title="{{ item.title }}">
+                                {% else %}
+                                    <a href="/{{ item.name_en }}/{{ item.slug_url }}" title="{{ item.title }}">
+                                {% endif %}
+                            {% else %}
+                                <a href="/{{ item.slug_url }}" title="{{ item.title }}">
+                            {% endif %}
+                            {{ forloop.counter }}. {{ item.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </aside>
+        {% endif %}
+        {% if related_tags %}
+            <aside class="sidebar just-pc sticky">
+                <div class="tag-list">
+                    <h2 class="h2">Related tags</h2>
+                    <ul class="tag-list__ul">
+                        {% for item in related_tags %}
+                            <li class="txtover">
+                                <a href="/tag/{{ item.kw_slug }}" title="{{ item.kw }}">
+                                    {{ item.kw }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+        {% endif %}
+    </div>
+    {% with site_info.theme_dir|add:"/inc/footer.html" as footer_templ %}
+        {% include footer_templ %}
+    {% endwith %}
+    </body>
+{% endspaceless %}
+</html>

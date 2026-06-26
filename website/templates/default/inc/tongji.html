@@ -1,0 +1,5 @@
+{% if site_info.tongji_code %}
+{% autoescape off %}
+    {{ site_info.tongji_code | safe }}
+{% endautoescape %}
+{% endif %}

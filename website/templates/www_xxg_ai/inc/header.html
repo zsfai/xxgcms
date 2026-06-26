@@ -1,0 +1,36 @@
+{% load static %}
+<header id="header">
+    <div id="header-container">
+        <section id="header-content">
+            {% if cate_info and cate_info.name_en %}
+            <div class="back-btn">
+                <a class="btn-a" href="/{{cate_info.name_en}}/"></a>
+            </div>
+            {% endif %}
+            <a href="/" id="logo-a">
+                <img src="/media/{{ site_info.logo_url }}" alt="{{ site_info.site_name }}LOGO" id="logo-pic"/>
+            </a>
+            {% if cate_info and cate_info.name_en %}
+            <div class="more-btn">
+                <a class="btn-a" href="javascript:alert('Welcome to {{site_info.domain}}！')"></a>
+            </div>
+            {% endif %}
+        </section>
+        <nav id="main-nav">
+            {% if not cate_info.name_en or not cate_info.p_cate_name_en %}
+            <a href="/" 
+                class="nav-a{% if not cate_info.name_en %} nav-active{% endif %}">
+                Home
+            </a>
+            {% else %}
+            <a href="/{{ cate_info.p_cate_name_en }}/" 
+                class="nav-a{% if cate_info.p_cate_name_en and not cate_info.name_en %} nav-active{% endif %}">
+                {{ cate_info.p_cate_name }}
+            </a>
+            {% endif %}
+            {% for i in main_menu %}
+            <a href="/{% if i.p_name_en %}{{i.p_name_en}}/{% endif %}{{i.name_en}}/" {% if i.name_en == cate_info.name_en %} class="nav-a nav-active" {% else %} class="nav-a" {% endif %}>{{ i.name }}</a>
+            {% endfor %}
+        </nav>
+    </div>
+</header>

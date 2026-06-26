@@ -1,0 +1,22 @@
+FROM nginx:1.27-alpine
+
+LABEL org.opencontainers.image.title="xxgcms/nginx"
+LABEL org.opencontainers.image.description="xxg-cms private gateway (reverse proxy + website /static/)"
+
+# 网关配置 + website 静态资源（/static/ 由 nginx 直接提供，避免 uWSGI 转发个别文件 404）
+COPY website/static /usr/share/nginx/html/website-static
+COPY docker/nginx/snippets/ /etc/nginx/snippets/
+COPY docker/nginx/00-base.conf /etc/nginx/available/00-base.conf
+COPY docker/nginx/admin-base.conf /etc/nginx/available/admin-base.conf
+COPY docker/nginx/zz-sites-include.conf /etc/nginx/available/zz-sites-include.conf
+COPY docker/nginx/full.conf /etc/nginx/available/full.conf
+COPY docker/nginx/admin.conf /etc/nginx/available/admin.conf
+COPY docker/scripts/nginx-entrypoint.sh /docker/scripts/nginx-entrypoint.sh
+COPY docker/scripts/nginx-reload-watcher.sh /docker/scripts/nginx-reload-watcher.sh
+
+RUN chmod +x /docker/scripts/nginx-entrypoint.sh /docker/scripts/nginx-reload-watcher.sh \
+    && mkdir -p /var/www/media /data/config/nginx/sites
+
+EXPOSE 80 443
+
+CMD ["/docker/scripts/nginx-entrypoint.sh"]

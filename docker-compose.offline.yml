@@ -1,0 +1,118 @@
+# 离线部署 — 全栈（mysql + admin-backend + admin-frontend + website + nginx）
+# 用法: docker compose -f docker-compose.offline.yml up -d
+# 镜像、容器、网络、数据卷均使用 xxgcms 私有命名，与其他 Docker 栈隔离
+
+name: xxgcms
+
+services:
+  mysql:
+    container_name: xxgcms-mysql
+    image: xxgcms/mysql:latest
+    pull_policy: never
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${XXGCMS_MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${XXGCMS_DB_NAME:-xxgcms}
+      MYSQL_USER: ${XXGCMS_DB_USER:-xxgcms}
+      MYSQL_PASSWORD: ${XXGCMS_DB_PASSWORD}
+      XXGCMS_CMS_DB_NAME: ${XXGCMS_CMS_DB_NAME:-xxgai}
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      xxgcms:
+        aliases:
+          - mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MYSQL_ROOT_PASSWORD\" --silent || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 45
+      start_period: 10s
+
+  backend:
+    container_name: xxgcms-admin-backend
+    image: xxgcms/admin-backend:latest
+    pull_policy: never
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: apps.settings.prod
+      XXGCMS_MEDIA_DIR: /data/media
+    volumes:
+      - media_data:/data/media
+      - config_data:/data/config
+    networks:
+      xxgcms:
+        aliases:
+          - backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  admin-frontend:
+    container_name: xxgcms-admin-frontend
+    image: xxgcms/admin-frontend:latest
+    pull_policy: never
+    restart: unless-stopped
+    networks:
+      xxgcms:
+        aliases:
+          - admin-frontend
+    depends_on:
+      - backend
+
+  website:
+    container_name: xxgcms-website
+    image: xxgcms/website:latest
+    pull_policy: never
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DJANGO_SETTINGS_MODULE: apps.settings.prod
+      XXGCMS_MEDIA_DIR: /data/media
+      XXGCMS_CMS_SITE_NAME: ${XXGCMS_CMS_SITE_NAME:-localhost}
+      XXGCMS_DEFAULT_THEME: ${XXGCMS_DEFAULT_THEME:-www_xxg_ai}
+    volumes:
+      - media_data:/data/media
+      - config_data:/data/config:ro
+    networks:
+      xxgcms:
+        aliases:
+          - website
+    depends_on:
+      mysql:
+        condition: service_healthy
+      backend:
+        condition: service_started
+
+  nginx:
+    container_name: xxgcms-nginx
+    image: xxgcms/nginx:latest
+    pull_policy: never
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      XXGCMS_ENABLE_WEBSITE: ${XXGCMS_ENABLE_WEBSITE:-1}
+    volumes:
+      - media_data:/var/www/media:ro
+      - config_data:/data/config
+    networks:
+      - xxgcms
+    depends_on:
+      - backend
+      - admin-frontend
+      - website
+
+networks:
+  xxgcms:
+    name: xxgcms-net
+
+volumes:
+  mysql_data:
+    name: xxgcms_mysql_data
+  media_data:
+    name: xxgcms_media_data
+  config_data:
+    name: xxgcms_config_data

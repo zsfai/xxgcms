@@ -1,0 +1,8 @@
+/.idea
+/sql/sql_user_pwd
+*.pyc
+/media
+/xxgcms_static_files/
+.venv/
+.env
+.credentials

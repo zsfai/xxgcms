@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="applicable-device" content="pc,mobile">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <title>{{ site_info.title }}</title>
+    <meta name="description" content="{{ site_info.desc }}"/>
+    <link rel="canonical" href="https://{{ host }}/">
+    {% if site_info.favicon_url %}
+    <link rel="shortcut icon" href="/media/{{site_info.favicon_url}}" type="image/x-icon">
+    {% else %}
+    <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    {% endif %}
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{% static 'css/comm.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+    <link href="{% static 'xxgai/css/index.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+</head>
+<body>
+{% spaceless %}
+{% with site_info.theme_dir|add:"/inc/header.html" as header_templ%}
+{% include header_templ %}
+{% endwith %}
+<div class="w-full hero-bg py-24 md:py-32 lg:py-40">
+    <div class="max-w-7xl mx-auto px-6 md:px-8">
+        <div class="text-center">
+            <h1 class="text-4xl md:text-5xl lg:text-6xl title-main mb-12 animate-fade-in-up">
+                <span class="colorful-logo">
+                    <span class="letter-x1">X</span><span class="letter-x2">X</span><span class="letter-g">G</span><span class="letter-space"> </span><span class="letter-a">A</span><span class="letter-i">I</span>
+                </span> - Everything Can Be Generated
+            </h1>
+            <p class="text-lg md:text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed animate-fade-in-up animate-delay-200">
+                Explore the infinite possibilities of AI generation technology, where creativity meets efficiency
+            </p>
+        </div>
+    </div>
+</div>
+<div class="article-cards">
+    <div class="cards-container">
+        {% for article in cate_article_list %}
+        <div class="article-card">
+            {% if article.p_cate_name_en %}
+                <a class="card-link" href="/{{ article.p_cate_name_en }}/{{ article.slug_url }}" title="{{ article.title }}">
+            {% elif article.cate_name_en %}
+                <a class="card-link" href="/{{ article.p_cate_name_en }}/{{ article.cate_name_en }}/{{ article.slug_url }}" title="{{ article.title }}">
+            {% else %}
+                <a class="card-link" href="/{{ article.slug_url }}" title="{{ article.title }}">
+            {% endif %}
+                <div class="card-image">
+                    {% if article.pic_url %}
+                    <img alt="{{ article.title }}" src="{{ article.pic_url }}"/>
+                    {% else %}
+                    <img src="/media/{{ site_info.defaul_pic_url }}" alt="defaul pic"/>
+                    {% endif %}
+                    {% if article.p_cate_name_en %}
+                    <span class="card-category">{{ article.p_cate_name_en }}</span>
+                    {% else %}
+                    <span class="card-category">{{ article.cate_name_en }}</span>
+                    {% endif %}
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">{{ article.title }}</h3>
+                    <p class="card-desc just-pc">{{ article.desc }}</p>
+                    <div class="card-footer">
+                        <span class="card-time">{{ article.pub_time | date:"Y-m-d" }}</span>
+                        <span class="card-author">xxg club</span>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% with site_info.theme_dir|add:"/inc/footer.html" as footer_templ%}
+{% include footer_templ %}
+{% endwith %}
+{% endspaceless %}
+</body>
+</html>

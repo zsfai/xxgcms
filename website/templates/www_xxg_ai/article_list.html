@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+{% load static %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="applicable-device" content="pc,mobile">
+    <meta http-equiv="Cache-Control" content="no-transform"/>
+    <meta http-equiv="Cache-Control" content="no-siteapp"/>
+    <title>{{ cate_info.seo_title }} - {{ site_info.site_name }}</title>
+    <meta name="description" content="{{ cate_info.desc }}"/>
+    {% if cate_info.p_cate_name_en and cate_info.p_cate_name %}
+        <link rel="canonical" href="https://{{ host }}/{{ cate_info.p_cate_name_en }}/{{ cate_info.name_en }}/">
+    {% else %}
+        <link rel="canonical" href="https://{{ host }}/{{ cate_info.name_en }}/">
+    {% endif %}
+    {% if site_info.favicon_url %}
+        <link rel="shortcut icon" href="/media/{{ site_info.favicon_url }}" type="image/x-icon">
+    {% else %}
+        <link rel="shortcut icon" href="{% static 'img/favicon.png' %}" type="image/x-icon">
+    {% endif %}
+    <link href="{% static 'css/comm.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+    <link href="{% static 'css/style.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+    <link href="{% static 'css/images.css' %}" rel="stylesheet" type="text/css" media="screen"/>
+</head>
+<body>
+{% spaceless %}
+    {% with site_info.theme_dir|add:"/inc/header.html" as header_templ %}
+        {% include header_templ %}
+    {% endwith %}
+    <div id="main-body" class="clearfix">
+        <div id="left">
+            <nav id="bread-nav">
+                <a href="/">Home</a> &gt;
+                {% if cate_name_en %}
+                    {% if cate_info.p_cate_name_en %}
+                        <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_name_en }}/">{{ cate_info.name }}</a> &gt;
+                    {% else %}
+                        <a href="/{{ cate_name_en }}/">{{ cate_info.name }}</a> &gt;
+                    {% endif %}
+                {% endif %}
+                <span>Related articles with {{ cate_info.name }}</span>
+            </nav>
+            <ul id="article-list">
+                {% for d in article_list %}
+                    <li class="article-item">
+                        {% if cate_name_en %}
+                            {% if cate_info.p_cate_name_en %}
+                                <a class="article-img-a" href="/{{ cate_info.p_cate_name_en }}/{{ cate_name_en }}/{{ d.slug_url }}">
+                            {% else %}
+                                <a class="article-img-a" href="/{{ cate_name_en }}/{{ d.slug_url }}">
+                            {% endif %}
+                        {% else %}
+                            <a class="article-img-a" href="/{{ d.slug_url }}">
+                        {% endif %}
+                        {% if d.pic_url %}
+                            <img src="{{ d.pic_url }}" class="article-img" alt=""/>
+                        {% else %}
+                            <img src="/media/{{ site_info.defaul_pic_url }}" class="article-img" alt="Default image"/>
+                        {% endif %}
+                        </a>
+
+                        <div class="article-item__content">
+                            <h3 class="article-title">
+                                {% if cate_name_en %}
+                                    {% if cate_info.p_cate_name_en %}
+                                        <a class="article-title-a" href="/{{ cate_info.p_cate_name_en }}/{{ cate_name_en }}/{{ d.slug_url }}" title="{{ d.title }}">
+                                    {% else %}
+                                        <a class="article-title-a" href="/{{ cate_name_en }}/{{ d.slug_url }}" title="{{ d.title }}">
+                                    {% endif %}
+                                {% else %}
+                                    <a href="/{{ d.slug_url }}" title="{{ d.title }}">
+                                {% endif %}
+                                {{ d.title }}
+                                </a>
+                            </h3>
+
+                            <p class="desc just-pc">
+                                {{ d.desc }}...
+                            </p>
+
+                            <div class="other-info">
+                                <span class="other-info__span time">{{ d.pub_time | date:"Y-m-d" }}</span>
+                            </div>
+                            <div class="tags just-pc">
+                                {% for kw_item in d.kws %}
+                                    <a class="tag-a" href="/tag/{{ kw_item.kw_slug }}" title="{{ kw_item.kw }}">
+                                        {{ kw_item.kw }}
+                                    </a>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+            <nav id="pager">
+                <ul class="pagination">
+                    {% if page_nav.has_prev %}
+                        <li>
+                            {% if cate_name_en %}
+                                {% if cate_info.p_cate_name_en %}
+                                    <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_name_en }}/page/{{ page_nav.prev_num }}/">
+                                {% else %}
+                                    <a href="/{{ cate_name_en }}/page/{{ page_nav.prev_num }}/">
+                                {% endif %}
+                            {% else %}
+                                <a href="/page/{{ page_nav.prev_num }}/">
+                            {% endif %}
+                            <span>&laquo; Previous</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                    {% for i in page_nav.page_range %}
+                        {% if page_nav.curr_page == i %}
+                            <li class="active">
+                                <a href="#">{{ i }}</a>
+                            </li>
+                        {% else %}
+                            <li>
+                                {% if cate_name_en %}
+                                    {% if cate_info.p_cate_name_en %}
+                                        <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_name_en }}/page/{{ i }}/">{{ i }}</a>
+                                    {% else %}
+                                        <a href="/{{ cate_name_en }}/page/{{ i }}/">{{ i }}</a>
+                                    {% endif %}
+                                {% else %}
+                                    <a href="/page/{{ i }}/">{{ i }}</a>
+                                {% endif %}
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if page_nav.has_next %}
+                        <li>
+                            {% if cate_name_en %}
+                                {% if cate_info.p_cate_name_en %}
+                                    <a href="/{{ cate_info.p_cate_name_en }}/{{ cate_name_en }}/page/{{ page_nav.next_num }}/">
+                                {% else %}
+                                    <a href="/{{ cate_name_en }}/page/{{ page_nav.next_num }}/">
+                                {% endif %}
+                            {% else %}
+                                <a href="/page/{{ page_nav.next_num }}/">
+                            {% endif %}
+                            <span>Next &raquo;</span>
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% if related_tags %}
+            <aside class="sidebar just-pc">
+                <div class="tag-list">
+                    <h2 class="h2">Related tags</h2>
+                    <ul class="tag-list__ul">
+                        {% for i in related_tags %}
+                            <li class="txtover">
+                                <a href="/tag/{{ i.kw_slug }}" title="{{ i.kw }}">{{ i.kw }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </aside>
+        {% endif %}
+        <aside class="sidebar just-pc sticky">
+            <div class="tag-list">
+                <h2 class="h2">Latest articles</h2>
+                <ol class="hot-list__ol">
+                    {% for item in hots %}
+                        <li class="txtover">
+                            {% if item.name_en %}
+                                {% if cate_info.p_cate_name_en %}
+                                    <a href="/{{ cate_info.p_cate_name_en }}/{{ item.name_en }}/{{ item.slug_url }}" title="{{ item.title }}">
+                                {% else %}
+                                    <a href="/{{ item.name_en }}/{{ item.slug_url }}" title="{{ item.title }}">
+                                {% endif %}
+                            {% else %}
+                                <a href="/{{ item.slug_url }}" title="{{ item.title }}">
+                            {% endif %}
+                            {{ forloop.counter }}. {{ item.title }}
+                            </a>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </aside>
+    </div>
+    {% with site_info.theme_dir|add:"/inc/footer.html" as footer_templ %}
+        {% include footer_templ %}
+    {% endwith %}
+{% endspaceless %}
+</body>
+</html>

@@ -1,0 +1,5 @@
+# Python 3.12+ / Django 4.2 LTS
+Django==4.2.21
+PyMySQL==1.1.1
+arrow==1.3.0
+uwsgi==2.0.28
