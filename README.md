@@ -1,5 +1,7 @@
 # 小西瓜CMS（xxgcms）
 
+> **在使用本项目前，请阅读 [法律声明、使用条款与免责协议](TERMS.md)**（简要摘要见 [DISCLAIMER.md](DISCLAIMER.md)）。
+
 ## Docker 一键部署（推荐）
 
 需安装 [Docker](https://docs.docker.com/get-docker/) 与 Docker Compose。
@@ -127,3 +129,7 @@ cd admin-frontend && npm install && npm run dev   # http://localhost:8080
 - 敏感项标记为 `__AUTO__` 的字段会在首次 `setup` / `init_env` 时自动随机生成
 - 前台与后台共用 `XXGCMS_DB_*` 数据库连接配置（由 setup 自动同步）
 - Docker 部署使用根目录 `.env`（从 `.env.docker.example` 复制）
+
+## 法律声明与免责
+
+使用本软件即表示您同意 [法律声明、使用条款与免责协议](TERMS.md)（版本 1.0，生效日期 2026年6月27日）。简要说明见 [DISCLAIMER.md](DISCLAIMER.md)。
