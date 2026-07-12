@@ -16,7 +16,7 @@
 
 | 类型 | 站点 |
 |------|------|
-| 英文站 | [evbriefs.com](https://evbriefs.com/) · [xxg.ai](https://xxg.ai) |
+| 英文站 | [evbriefs.com](https://evbriefs.com/) |
 | 中文站 | [www.17yly.com](https://www.17yly.com/) |
 
 ## 界面预览
