@@ -16,6 +16,7 @@
 
 | 类型 | 站点 |
 |------|------|
+| 线上演示 | [enum.cc](https://enum.cc/) （账号 `xxgcmsadmin`，密码 `123456`） |
 | 英文站 | [evbriefs.com](https://evbriefs.com/) |
 | 中文站 | [www.17yly.com](https://www.17yly.com/) |
 
