@@ -16,9 +16,9 @@
 
 | 类型 | 站点 |
 |------|------|
-| 线上演示 | [enum.cc](https://enum.cc/) 前台，[管理后台](https://enum.cc/back-x/) （账号 `xxgcmsadmin`，密码 `123456`） |
-| 英文站 | [evbriefs.com](https://evbriefs.com/) |
-| 中文站 | [www.17yly.com](https://www.17yly.com/) |
+| 线上演示 | <a href="https://enum.cc/" target="_blank" rel="noopener noreferrer">enum.cc</a> 前台，<a href="https://enum.cc/back-x/" target="_blank" rel="noopener noreferrer">管理后台</a> （账号 `xxgcmsadmin`，密码 `123456`） |
+| 英文站 | <a href="https://evbriefs.com/" target="_blank" rel="noopener noreferrer">evbriefs.com</a> |
+| 中文站 | <a href="https://www.17yly.com/" target="_blank" rel="noopener noreferrer">www.17yly.com</a> |
 
 ## 界面预览
 
@@ -86,7 +86,7 @@
 
 ## Docker 一键部署（推荐）
 
-需安装 [Docker](https://docs.docker.com/get-docker/) 与 Docker Compose。
+需安装 <a href="https://docs.docker.com/get-docker/" target="_blank" rel="noopener noreferrer">Docker</a> 与 Docker Compose。
 
 ### 全栈一键部署
 
