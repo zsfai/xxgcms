@@ -97,22 +97,26 @@ cd admin-backend
 chmod +x scripts/xxgcms.sh scripts/start.sh
 ./scripts/xxgcms.sh install
 ./scripts/xxgcms.sh setup
-./scripts/xxgcms.sh start
 ```
+
+One-shot local stack (API `:8000`, admin SPA `:8080`, website `:8088`):
 
 ```bash
-cd admin-frontend
-npm install
-npm run dev
+chmod +x start-dev.sh scripts/dev-start.sh
+./start-dev.sh          # Git Bash / Linux / macOS
+# Windows: .\start-dev.ps1
 ```
+
+Or start services separately:
 
 ```bash
-cd website
-chmod +x scripts/website.sh scripts/start.sh
-./scripts/website.sh start
+./admin-backend/scripts/xxgcms.sh start
+cd admin-frontend && npm install && npm run dev
+./website/scripts/website.sh start
 ```
 
-Admin credentials: `./scripts/xxgcms.sh credentials` or `admin-backend/.credentials`.
+Admin credentials: `./admin-backend/scripts/xxgcms.sh credentials` or `admin-backend/.credentials`.
+Logs from one-shot start: `.dev-logs/`.
 
 ## Cross-Cutting Conventions
 

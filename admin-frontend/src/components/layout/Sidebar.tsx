@@ -12,6 +12,7 @@ import {
   Sparkles,
   Bot,
   FileText,
+  Images,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -49,6 +50,7 @@ const menuSections: MenuSection[] = [
       { to: '/keywords', label: '关键词', icon: Tag },
       { to: '/carousels', label: '轮播配置', icon: GalleryHorizontal },
       { to: '/links', label: '友链管理', icon: Link },
+      { to: '/media', label: '媒体库', icon: Images },
       { to: '/conf', label: '网站配置', icon: SlidersHorizontal },
     ],
   },

@@ -1,11 +1,19 @@
 import '@/lib/wangeditor-boot'
 import '@wangeditor-next/editor/dist/css/style.css'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { IDomEditor, IEditorConfig, IToolbarConfig } from '@wangeditor-next/editor'
 import { Editor, Toolbar } from '@wangeditor-next/editor-for-react'
 import { toast } from 'sonner'
+import { MediaPickerDialog } from '@/components/MediaPickerDialog'
+import { attachMediaLibraryToolbarIcon } from '@/lib/attach-media-library-toolbar-icon'
+import { buildMediaInsertHtml } from '@/lib/media-insert'
+import {
+  MEDIA_LIBRARY_EVENT,
+  MEDIA_LIBRARY_MENU_KEY,
+} from '@/lib/media-library-menu'
 import { cn, resolveSiteMediaUrl } from '@/lib/utils'
 import { handleEditorPaste } from '@/lib/editor-paste'
+import type { MediaItem } from '@/types'
 
 interface RichTextEditorProps {
   value?: string
@@ -31,26 +39,37 @@ export function RichTextEditor({
   borderless = false,
   onFullScreenChange,
 }: RichTextEditorProps) {
+  const wrapRef = useRef<HTMLDivElement>(null)
   const [editor, setEditor] = useState<IDomEditor | null>(null)
   const [html, setHtml] = useState(value)
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false)
 
   useEffect(() => {
     if (!editor || editor.isDestroyed) return
 
     const onFullScreen = () => onFullScreenChange?.(true)
     const onUnFullScreen = () => onFullScreenChange?.(false)
+    const onOpenMediaLibrary = () => setMediaPickerOpen(true)
 
     editor.on('fullscreen', onFullScreen)
     editor.on('unFullScreen', onUnFullScreen)
+    editor.on(MEDIA_LIBRARY_EVENT, onOpenMediaLibrary)
 
     return () => {
       editor.off('fullscreen', onFullScreen)
       editor.off('unFullScreen', onUnFullScreen)
+      editor.off(MEDIA_LIBRARY_EVENT, onOpenMediaLibrary)
       if (editor.isFullScreen) {
         onFullScreenChange?.(false)
       }
     }
   }, [editor, onFullScreenChange])
+
+  // 注入与左侧菜单完全相同的 Lucide Images 组件
+  useEffect(() => {
+    if (!editor || editor.isDestroyed || !wrapRef.current) return
+    return attachMediaLibraryToolbarIcon(wrapRef.current)
+  }, [editor])
 
   useEffect(() => {
     if (value !== html) {
@@ -71,6 +90,10 @@ export function RichTextEditor({
 
   const toolbarConfig: Partial<IToolbarConfig> = {
     excludeKeys: ['fontSize', 'fontFamily', 'lineHeight'],
+    insertKeys: {
+      index: 22,
+      keys: [MEDIA_LIBRARY_MENU_KEY],
+    },
   }
 
   const editorConfig: Partial<IEditorConfig> = {
@@ -101,9 +124,27 @@ export function RichTextEditor({
     },
   }
 
+  const handleInsertMedia = (items: MediaItem[]) => {
+    if (!editor || editor.isDestroyed) {
+      toast.error('编辑器未就绪')
+      return
+    }
+    const fragment = buildMediaInsertHtml(items)
+    if (!fragment) return
+    try {
+      editor.restoreSelection()
+      editor.focus()
+      editor.dangerouslyInsertHtml(fragment)
+      toast.success(`已插入 ${items.length} 个文件`)
+    } catch (e) {
+      toast.error(`插入失败：${String(e)}`)
+    }
+  }
+
   return (
     <div className={cn(borderless && 'flex min-h-0 flex-1 flex-col', className)}>
       <div
+        ref={wrapRef}
         className={cn(
           'overflow-hidden rounded-md border',
           borderless && 'rich-text-editor-borderless flex min-h-0 flex-1 flex-col',
@@ -135,6 +176,12 @@ export function RichTextEditor({
           }
         />
       </div>
+
+      <MediaPickerDialog
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        onConfirm={handleInsertMedia}
+      />
     </div>
   )
 }

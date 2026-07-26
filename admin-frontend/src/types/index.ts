@@ -135,6 +135,18 @@ export interface LinkItem {
   add_time?: string
 }
 
+export interface MediaItem {
+  id: number
+  name: string
+  file_path: string
+  ext: string
+  file_type: 'image' | 'document' | 'video' | 'other' | string
+  file_size: number
+  url?: string
+  create_time?: string
+  update_time?: string
+}
+
 export interface SiteConf {
   domain: string
   https?: string | boolean

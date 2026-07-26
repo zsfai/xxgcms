@@ -184,6 +184,15 @@ export const updateLinkService = (data: Record<string, unknown>) =>
 export const delLinkService = (data: Record<string, unknown>) =>
   axios.post('/api/del_link/', xData(data)) as Promise<ApiResponse>
 
+export const getMediaListService = (data: Record<string, unknown>) =>
+  axios.post('/api/get_media_list/', xData(data)) as Promise<ApiResponse>
+
+export const renameMediaService = (data: Record<string, unknown>) =>
+  axios.post('/api/rename_media/', xData(data)) as Promise<ApiResponse>
+
+export const delMediaService = (data: Record<string, unknown>) =>
+  axios.post('/api/del_media/', xData(data)) as Promise<ApiResponse>
+
 export const getSiteConfService = (data: Record<string, unknown> = {}) =>
   axios.post('/api/get_site_conf/', xData(data)) as Promise<ApiResponse>
 

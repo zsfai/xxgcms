@@ -167,29 +167,39 @@ sudo ./install.sh
 
 ## 本地开发启动
 
-在 `admin-backend` 目录：
+首次请先完成后端安装与初始化（只需一次）：
 
 ```bash
+cd admin-backend
 chmod +x scripts/xxgcms.sh scripts/start.sh
-./scripts/xxgcms.sh install    # 首次：venv + 依赖
-./scripts/xxgcms.sh setup      # 首次：配置 + 数据库 + 管理员
-./scripts/xxgcms.sh start      # 启动（无 .env 时会自动 setup）
+./scripts/xxgcms.sh install    # venv + 依赖
+./scripts/xxgcms.sh setup      # 配置 + 数据库 + 管理员
 ```
 
-最短启动：
+之后可用一键脚本同时启动三个本地服务（API `:8000`、管理前端 `:8080`、站点前台 `:8088`）：
 
 ```bash
-./admin-backend/scripts/start.sh          # 后台 API
-./website/scripts/start.sh                # 站点前台（默认 8088）
+# Linux / macOS / Git Bash
+chmod +x start-dev.sh scripts/dev-start.sh
+./start-dev.sh
 ```
 
-管理前端开发：
+```powershell
+# Windows PowerShell
+.\start-dev.ps1
+```
+
+日志在 `.dev-logs/`，`Ctrl+C` 会停止全部进程。
+
+分服务启动：
 
 ```bash
-cd admin-frontend && npm install && npm run dev   # http://localhost:8080
+./admin-backend/scripts/start.sh          # 后台 API :8000
+./website/scripts/start.sh                # 站点前台 :8088
+cd admin-frontend && npm install && npm run dev   # 管理前端 :8080
 ```
 
-查看管理员账号：`./scripts/xxgcms.sh credentials`
+查看管理员账号：`./admin-backend/scripts/xxgcms.sh credentials`
 
 ## setup 会自动完成
 

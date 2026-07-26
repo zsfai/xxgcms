@@ -1,6 +1,6 @@
 # coding:utf-8
 from django.urls import re_path
-from apps.api.controller import base, keyword, article, carousel, link, slugurl, ai, ssl
+from apps.api.controller import base, keyword, article, carousel, link, slugurl, ai, ssl, media
 
 
 urlpatterns = [
@@ -83,6 +83,12 @@ urlpatterns = [
     re_path(r'^add_link/', link.add_link),
     re_path(r'^update_link/', link.update_link),
     re_path(r'^del_link/', link.del_link),
+
+    # 媒体库
+    re_path(r'^get_media_list/', media.get_media_list),
+    re_path(r'^upload_media/', media.upload_media),
+    re_path(r'^rename_media/', media.rename_media),
+    re_path(r'^del_media/', media.del_media),
 
     # AI（选题 / 写稿 / 配置）
     re_path(r'^ai/topic_suggest/', ai.topic_suggest),

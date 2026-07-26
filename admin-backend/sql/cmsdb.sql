@@ -464,6 +464,37 @@ LOCK TABLES `ts_ret` WRITE;
 /*!40000 ALTER TABLE `ts_ret` DISABLE KEYS */;
 /*!40000 ALTER TABLE `ts_ret` ENABLE KEYS */;
 UNLOCK TABLES;
+
+--
+-- Table structure for table `media_file`
+--
+
+DROP TABLE IF EXISTS `media_file`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `media_file` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '展示名（默认为原文件名）',
+  `file_path` varchar(500) NOT NULL DEFAULT '' COMMENT '相对 MEDIA_ROOT 路径（含 root_path）',
+  `ext` varchar(20) NOT NULL DEFAULT '' COMMENT '小写扩展名',
+  `file_type` varchar(20) NOT NULL DEFAULT 'other' COMMENT 'image/document/video/other',
+  `file_size` bigint(20) NOT NULL DEFAULT '0' COMMENT '字节',
+  `del_flag` varchar(1) NOT NULL DEFAULT '0' COMMENT '逻辑删除：0正常 1已删',
+  `create_time` datetime DEFAULT NULL,
+  `update_time` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `media_file_type_IDX` (`del_flag`,`file_type`,`create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='站点媒体库文件';
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `media_file`
+--
+
+LOCK TABLES `media_file` WRITE;
+/*!40000 ALTER TABLE `media_file` DISABLE KEYS */;
+/*!40000 ALTER TABLE `media_file` ENABLE KEYS */;
+UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

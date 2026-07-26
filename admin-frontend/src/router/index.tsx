@@ -6,6 +6,7 @@ import { ArticleListPage } from '@/pages/article/ArticleListPage'
 import { CatePage } from '@/pages/article/CatePage'
 import { CarouselPage } from '@/pages/article/CarouselPage'
 import { FriendLinkPage } from '@/pages/article/FriendLinkPage'
+import { MediaLibraryPage } from '@/pages/article/MediaLibraryPage'
 import { SiteConfPage } from '@/pages/article/SiteConfPage'
 import { AiTopicPage } from '@/pages/article/AiTopicPage'
 import { SitePage } from '@/pages/sys/SitePage'
@@ -31,6 +32,7 @@ export const router = createBrowserRouter(
         { path: 'cates', element: <CatePage /> },
         { path: 'carousels', element: <CarouselPage /> },
         { path: 'links', element: <FriendLinkPage /> },
+        { path: 'media', element: <MediaLibraryPage /> },
         { path: 'conf', element: <SiteConfPage /> },
         { path: 'sites', element: <SitePage /> },
         { path: 'ai-config', element: <AiConfigPage /> },

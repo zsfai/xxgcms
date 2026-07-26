@@ -1,6 +1,9 @@
 # Superpowers 规划/设计文档（本地 AI 协作产物，不纳入版本库）
 docs/superpowers/
 
+# 本地一键启动日志
+.dev-logs/
+
 # Docker Compose 本地环境
 .env
 

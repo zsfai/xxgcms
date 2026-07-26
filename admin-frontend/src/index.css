@@ -244,3 +244,28 @@
     flex-shrink: 0;
   }
 }
+
+/*
+ * 富文本「媒体库」：侧栏同款 Lucide Images，尺寸对齐 wangEditor 工具栏（15px）。
+ */
+.w-e-toolbar .w-e-bar-item button[data-menu-key='xxgcmsMediaLibrary'] .xxgcms-media-lib-icon {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  width: 15px;
+  height: 15px;
+}
+
+.w-e-toolbar .w-e-bar-item button[data-menu-key='xxgcmsMediaLibrary'] .xxgcms-media-lib-icon svg {
+  fill: none !important;
+  stroke: currentColor !important;
+  width: 15px !important;
+  height: 15px !important;
+  display: block !important;
+}
+
+.w-e-toolbar .w-e-bar-item button[data-menu-key='xxgcmsMediaLibrary'] .xxgcms-media-lib-icon svg * {
+  fill: none !important;
+  stroke: currentColor !important;
+}
