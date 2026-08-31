@@ -31,15 +31,21 @@ function mergeDateAndTime(date: Date, hour: number, minute: number): Date {
 interface DateTimePickerProps {
   value: string
   onChange: (value: string) => void
+  /** 为空字符串时不显示标签 */
+  label?: string
   placeholder?: string
   className?: string
+  /** 触发按钮额外样式，如筛选栏用 h-9 */
+  triggerClassName?: string
 }
 
 export function DateTimePicker({
   value,
   onChange,
+  label = '发布时间',
   placeholder = '选择发布时间',
   className,
+  triggerClassName,
 }: DateTimePickerProps) {
   const selected = parseDateTimeLocal(value)
   const hour = selected?.getHours() ?? 9
@@ -58,8 +64,8 @@ export function DateTimePicker({
     : placeholder
 
   return (
-    <div className={cn('space-y-2', className)}>
-      <Label className="text-sm text-muted-foreground">发布时间</Label>
+    <div className={cn(label ? 'space-y-1.5' : undefined, className)}>
+      {label ? <Label className="text-sm">{label}</Label> : null}
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -67,10 +73,11 @@ export function DateTimePicker({
             className={cn(
               'w-full justify-start rounded-xl text-left font-normal',
               !value && 'text-muted-foreground',
+              triggerClassName,
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4 shrink-0" />
-            {displayText}
+            <span className="truncate">{displayText}</span>
           </Button>
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start" sideOffset={8}>

@@ -2,11 +2,25 @@
 from django.views.decorators.csrf import csrf_exempt
 
 from apps.api.forms import UserForm
-from apps.api.service import base_service, token_service
+from apps.api.service import base_service, login_log_service, token_service
 from apps.api.utils.perm_wrapper import perm
-from apps.api.utils.public import log_debug, log_error
+from apps.api.utils.public import get_client_ip, log_debug, log_error
 from apps.api.utils.response import api_error, api_success, parse_json
 from apps.api.utils.upload import validate_image_ext
+
+
+def _request_ua(request):
+    return request.META.get('HTTP_USER_AGENT', '') or ''
+
+
+def _record_login(request, user_name, action, message=''):
+    login_log_service.safe_add_login_log(
+        user_name,
+        action,
+        ip=get_client_ip(request),
+        user_agent=_request_ua(request),
+        message=message,
+    )
 
 
 @csrf_exempt
@@ -14,16 +28,68 @@ def login(request):
     try:
         req = parse_json(request)
         log_debug(req)
+        raw_name = (req.get('name') or '') if isinstance(req, dict) else ''
         user_form = UserForm(req)
         if not user_form.is_valid():
+            _record_login(request, raw_name, 'login_fail', '存在不合法的输入')
             return api_error('存在不合法的输入')
         name = user_form.cleaned_data['name']
         pwd = user_form.cleaned_data['pwd']
         if not base_service.login(name, pwd):
+            _record_login(request, name, 'login_fail', '账号和密码有误')
             return api_error('账号和密码有误')
         token = token_service.create_token(name)
         base_service.refesh_site_conf(name)
+        _record_login(request, name, 'login_success')
         return api_success(ret=True, token=token)
+    except Exception as exc:
+        log_error(str(exc))
+        return api_error(str(exc))
+
+
+@csrf_exempt
+@perm(code=None)
+def logout(request):
+    try:
+        _record_login(request, request.xxgcms_user, 'logout')
+        return api_success(ret=True)
+    except Exception as exc:
+        log_error(str(exc))
+        return api_error(str(exc))
+
+
+@csrf_exempt
+@perm(code=None)
+def get_login_log_list(request):
+    try:
+        req = parse_json(request)
+        page_num = int(req.get('page_num') or 1)
+        page_size = int(req.get('page_size') or 20)
+        if page_num < 1:
+            page_num = 1
+        if page_size < 1:
+            page_size = 20
+        start_page = (page_num - 1) * page_size
+        datas, total_count = login_log_service.get_login_log_list(
+            start_page,
+            page_size,
+            user_name=req.get('user_name', ''),
+            action=req.get('action', ''),
+            start_time=req.get('start_time', ''),
+            end_time=req.get('end_time', ''),
+        )
+        return api_success(datas=datas, total_count=total_count)
+    except Exception as exc:
+        log_error(str(exc))
+        return api_error(str(exc))
+
+
+@csrf_exempt
+@perm(code=None)
+def get_changelog(request):
+    try:
+        datas = login_log_service.get_changelog()
+        return api_success(datas=datas)
     except Exception as exc:
         log_error(str(exc))
         return api_error(str(exc))

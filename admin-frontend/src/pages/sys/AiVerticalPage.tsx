@@ -12,6 +12,7 @@ import { Loading } from '@/components/Loading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageShell } from '@/components/PageShell'
+import { AiSecondaryNav } from '@/pages/sys/AiSecondaryNav'
 import {
   Dialog,
   DialogContent,
@@ -213,6 +214,7 @@ export function AiVerticalPage() {
       <PageShell
         title="垂类管理"
         description="配置选题与写稿的提示词、联网检索词；直接影响 AI 选题与文章质量"
+        sideNav={<AiSecondaryNav />}
         actions={
           <Button onClick={openCreate}>
             <Plus className="h-4 w-4" />

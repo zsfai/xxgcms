@@ -10,9 +10,13 @@ import { MediaLibraryPage } from '@/pages/article/MediaLibraryPage'
 import { SiteConfPage } from '@/pages/article/SiteConfPage'
 import { AiTopicPage } from '@/pages/article/AiTopicPage'
 import { SitePage } from '@/pages/sys/SitePage'
+import { AiSettingsLayout } from '@/pages/sys/AiSettingsLayout'
 import { AiConfigPage } from '@/pages/sys/AiConfigPage'
 import { AiVerticalPage } from '@/pages/sys/AiVerticalPage'
 import { AiTemplatePage } from '@/pages/sys/AiTemplatePage'
+import { SystemLayout } from '@/pages/sys/SystemLayout'
+import { LoginLogPage } from '@/pages/sys/LoginLogPage'
+import { ChangelogPage } from '@/pages/sys/ChangelogPage'
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
 
@@ -35,9 +39,28 @@ export const router = createBrowserRouter(
         { path: 'media', element: <MediaLibraryPage /> },
         { path: 'conf', element: <SiteConfPage /> },
         { path: 'sites', element: <SitePage /> },
-        { path: 'ai-config', element: <AiConfigPage /> },
-        { path: 'ai-verticals', element: <AiVerticalPage /> },
-        { path: 'ai-templates', element: <AiTemplatePage /> },
+        {
+          path: 'system',
+          element: <SystemLayout />,
+          children: [
+            { index: true, element: <Navigate to="login-logs" replace /> },
+            { path: 'login-logs', element: <LoginLogPage /> },
+            { path: 'changelog', element: <ChangelogPage /> },
+          ],
+        },
+        {
+          path: 'ai',
+          element: <AiSettingsLayout />,
+          children: [
+            { index: true, element: <Navigate to="config" replace /> },
+            { path: 'config', element: <AiConfigPage /> },
+            { path: 'verticals', element: <AiVerticalPage /> },
+            { path: 'templates', element: <AiTemplatePage /> },
+          ],
+        },
+        { path: 'ai-config', element: <Navigate to="/ai/config" replace /> },
+        { path: 'ai-verticals', element: <Navigate to="/ai/verticals" replace /> },
+        { path: 'ai-templates', element: <Navigate to="/ai/templates" replace /> },
       ],
     },
     { path: '*', element: <Navigate to="/" replace /> },

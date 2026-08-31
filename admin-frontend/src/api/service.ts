@@ -29,6 +29,15 @@ export const refreshSysService = (data: Record<string, unknown> = {}) =>
 export const loginService = (data: { name: string; pwd: string }) =>
   axios.post('/api/login/', data) as Promise<ApiResponse<{ token: string }>>
 
+export const logoutService = () =>
+  axios.post('/api/logout/', {}) as Promise<ApiResponse>
+
+export const getLoginLogListService = (data: Record<string, unknown>) =>
+  axios.post('/api/get_login_log_list/', data) as Promise<ApiResponse>
+
+export const getChangelogService = () =>
+  axios.post('/api/get_changelog/', {}) as Promise<ApiResponse>
+
 export const changePasswordService = (data: { old_pwd: string; new_pwd: string }) =>
   axios.post('/api/change_password/', data) as Promise<ApiResponse>
 

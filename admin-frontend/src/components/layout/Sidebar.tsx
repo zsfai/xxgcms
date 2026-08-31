@@ -11,8 +11,8 @@ import {
   PanelLeftOpen,
   Sparkles,
   Bot,
-  FileText,
   Images,
+  Settings2,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -35,9 +35,8 @@ const menuSections: MenuSection[] = [
     title: '全局',
     items: [
       { to: '/sites', label: '站点管理', icon: Globe2 },
-      { to: '/ai-config', label: 'AI 配置', icon: Bot },
-      { to: '/ai-verticals', label: '垂类管理', icon: Layers },
-      { to: '/ai-templates', label: '模板管理', icon: FileText },
+      { to: '/ai', label: 'AI 管理', icon: Bot },
+      { to: '/system', label: '系统管理', icon: Settings2 },
     ],
   },
   {
@@ -71,6 +70,17 @@ function SidebarBrand() {
   )
 }
 
+function pathMatchesMenu(pathname: string, to: string) {
+  if (to === '/ai') {
+    // 仅匹配 AI 管理子页，避免与 /ai-topics 冲突
+    return pathname === '/ai' || pathname.startsWith('/ai/')
+  }
+  if (to === '/system') {
+    return pathname === '/system' || pathname.startsWith('/system/')
+  }
+  return pathname === to
+}
+
 function SidebarNavItem({
   item,
   collapsed,
@@ -81,7 +91,7 @@ function SidebarNavItem({
   disabled?: boolean
 }) {
   const location = useLocation()
-  const isActive = location.pathname === item.to
+  const isActive = pathMatchesMenu(location.pathname, item.to)
   const Icon = item.icon
   const title = collapsed ? item.label : disabled ? '请先选择站点' : undefined
 

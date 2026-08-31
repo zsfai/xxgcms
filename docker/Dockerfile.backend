@@ -51,6 +51,7 @@ WORKDIR /app
 
 # 仅 admin-backend Python 应用，不含 admin-frontend / website 代码
 COPY admin-backend/ ./
+COPY docs/CHANGELOG.md ./docs/CHANGELOG.md
 COPY docker/scripts/ /docker/scripts/
 COPY docker/uwsgi/backend.ini /docker/uwsgi/backend.ini
 COPY docker/templates/website.env.example /docker/website.env.example

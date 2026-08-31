@@ -11,6 +11,7 @@ import {
 import { Loading } from '@/components/Loading'
 import { Button } from '@/components/ui/button'
 import { PageShell } from '@/components/PageShell'
+import { AiSecondaryNav } from '@/pages/sys/AiSecondaryNav'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -212,6 +213,7 @@ export function AiConfigPage() {
       <PageShell
         title="AI 配置"
         description="在界面管理 API Key、默认 Provider 与模型，无需改环境变量"
+        sideNav={<AiSecondaryNav />}
       >
         <div className="content-panel space-y-8 p-6">
           <section className="space-y-4">

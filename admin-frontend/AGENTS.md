@@ -82,9 +82,10 @@ Defined in `src/router/index.tsx`:
 |------|------|-------|
 | `/` | LoginPage | — |
 | `/sites` | SitePage | Global |
-| `/ai-config` | AiConfigPage | Global |
-| `/ai-verticals` | AiVerticalPage | Global |
-| `/ai-templates` | AiTemplatePage | Global |
+| `/ai` | AiSettingsLayout | Global（二级：config / verticals / templates） |
+| `/ai/config` | AiConfigPage | Global |
+| `/ai/verticals` | AiVerticalPage | Global |
+| `/ai/templates` | AiTemplatePage | Global |
 | `/articles` | ArticleListPage | Site |
 | `/ai-topics` | AiTopicPage | Site |
 | `/cates` | CatePage | Site |
@@ -196,9 +197,10 @@ Reference: `src/pages/article/AiTopicPage.tsx` — form panels, polling, navigat
 | Route | File | Flow |
 |-------|------|------|
 | `/ai-topics` | `AiTopicPage.tsx` | Seed keyword → suggestions → select → confirm generate → poll → navigate `/articles?ai=1` |
-| `/ai-config` | `AiConfigPage.tsx` | Provider/model settings panel |
-| `/ai-verticals` | `AiVerticalPage.tsx` | Vertical CRUD |
-| `/ai-templates` | `AiTemplatePage.tsx` | Prompt template CRUD |
+| `/ai` | `AiSettingsLayout.tsx` | Secondary tabs for AI admin pages |
+| `/ai/config` | `AiConfigPage.tsx` | Provider/model settings panel |
+| `/ai/verticals` | `AiVerticalPage.tsx` | Vertical CRUD |
+| `/ai/templates` | `AiTemplatePage.tsx` | Prompt template CRUD |
 
 AI API services (all in `service.ts`, prefix `/api/ai/`):
 

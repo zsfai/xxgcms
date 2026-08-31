@@ -371,7 +371,7 @@ export function AiTopicPage() {
                   </Select>
                   <p className="text-xs text-muted-foreground">
                     来自后台「模板管理」配置，可
-                    <Link to="/ai-templates" className="text-primary underline-offset-2 hover:underline">
+                    <Link to="/ai/templates" className="text-primary underline-offset-2 hover:underline">
                       自定义模板与提示词
                     </Link>
                     ；切换垂类会自动带入其默认模板。

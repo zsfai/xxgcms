@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronDown, Globe2, KeyRound, LogOut, RefreshCw } from 'lucide-react'
 import { toast } from 'sonner'
-import { getSiteListService, refreshSysService } from '@/api/service'
+import { getSiteListService, logoutService, refreshSysService } from '@/api/service'
 import { ChangePasswordDialog } from '@/components/layout/ChangePasswordDialog'
 import { useAppStore } from '@/stores/app-store'
 import type { SiteItem } from '@/types'
@@ -82,7 +82,12 @@ export function TopBar() {
     }
   }
 
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await logoutService()
+    } catch {
+      // 登出日志失败不阻断本地清理
+    }
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('name')
     sessionStorage.removeItem('domain')
@@ -157,7 +162,7 @@ export function TopBar() {
             <KeyRound className="h-4 w-4" />
             修改密码
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={logout} className="min-h-10 gap-2 py-2.5 text-destructive focus:text-destructive">
+          <DropdownMenuItem onClick={() => void logout()} className="min-h-10 gap-2 py-2.5 text-destructive focus:text-destructive">
             <LogOut className="h-4 w-4" />
             退出登录
           </DropdownMenuItem>

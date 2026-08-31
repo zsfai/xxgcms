@@ -13,6 +13,7 @@ import { Loading } from '@/components/Loading'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { PageShell } from '@/components/PageShell'
+import { AiSecondaryNav } from '@/pages/sys/AiSecondaryNav'
 import {
   Dialog,
   DialogContent,
@@ -161,6 +162,7 @@ export function AiTemplatePage() {
       <PageShell
         title="模板管理"
         description="配置 AI 写稿时使用的文章模板与 System 提示词；AI 选题确认写稿时可选择"
+        sideNav={<AiSecondaryNav />}
         actions={
           <Button onClick={openCreate}>
             <Plus className="h-4 w-4" />
