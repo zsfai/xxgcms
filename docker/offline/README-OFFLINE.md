@@ -6,9 +6,9 @@
 
 | 工程目录 | 类型 | Docker 镜像 | tar 包 | 镜像内包含 |
 |----------|------|-------------|--------|------------|
-| `admin-backend/` | **纯 Python** (Django + uWSGI) | `xxgcms/admin-backend:latest` | `xxgcms-admin-backend.tar` | 仅 `admin-backend/` 代码与依赖 |
+| `admin-backend/` | **纯 Python** (Django + uWSGI) | `xxgcms/admin-backend:latest` | `xxgcms-admin-backend.tar` | 仅 `admin-backend/` 代码与依赖；多阶段构建，runtime 不含 gcc |
 | `admin-frontend/` | **纯前端** (React 静态资源) | `xxgcms/admin-frontend:latest` | `xxgcms-admin-frontend.tar` | 仅 `npm run build` 后的 `/back-x/` 静态文件 |
-| `website/` | **纯 Python** (Django + uWSGI) | `xxgcms/website:latest` | `xxgcms-website.tar` | 仅 `website/` 代码与依赖（含 `static/`） |
+| `website/` | **纯 Python** (Django + uWSGI) | `xxgcms/website:latest` | `xxgcms-website.tar` | 仅 `website/` 代码与依赖（含 `static/`）；多阶段构建，runtime 不含 gcc |
 | — | 基础设施：网关 | `xxgcms/nginx:latest` | `xxgcms-nginx.tar` | 私有 Nginx 网关，**不与**系统 `nginx` 镜像共用 |
 | — | 基础设施：数据库 | `xxgcms/mysql:latest` | `xxgcms-mysql.tar` | 私有 MySQL 8.0，**不与**公共 `mysql:8.0` 共用 |
 

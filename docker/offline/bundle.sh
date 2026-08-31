@@ -143,6 +143,7 @@ docker_pull_if_needed node:20-alpine
 docker_pull_if_needed nginx:1.27-alpine
 
 echo "[2/6] 构建 xxgcms 私有镜像（5 个，与其他 Docker 栈隔离）..."
+# backend / website 使用多阶段 Dockerfile：编译工具仅在 builder，runtime 不含 gcc
 docker_build docker/Dockerfile.mysql xxgcms/mysql:latest
 docker_build docker/Dockerfile.backend xxgcms/admin-backend:latest
 docker_build docker/Dockerfile.admin-frontend xxgcms/admin-frontend:latest
