@@ -26,7 +26,12 @@ _mysql_is_first_init() {
 }
 
 _backend_first_run_count() {
-  docker logs "${BACKEND_CONTAINER}" 2>&1 | grep -c 'First run — initializing' 2>/dev/null || echo 0
+  # grep -c 无匹配时已打印 0 且退出码为 1。不能再 || echo 0，否则输出两行 "0"，
+  # [[ "${count}" -gt 1 ]] 会报 syntax error（0\n0）。
+  local count
+  count="$(docker logs "${BACKEND_CONTAINER}" 2>&1 | grep -c 'First run — initializing' || true)"
+  count="${count//[^0-9]/}"
+  echo "${count:-0}"
 }
 
 _classify_backend_line() {
