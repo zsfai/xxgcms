@@ -55,7 +55,7 @@ def handle_message(key_row, message):
             },
             'serverInfo': {
                 'name': 'xxgcms',
-                'version': '2.0.4',
+                'version': '2.1.0',
             },
             'instructions': SERVER_INSTRUCTIONS,
         }), False

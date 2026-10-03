@@ -13,12 +13,12 @@ function isNavActive(pathname: string, to: string, end: boolean) {
   return pathname === to || pathname.startsWith(`${to}/`)
 }
 
-/** 日志二级菜单：放在 PageShell 标题下方，与右侧卡片对齐 */
+/** 关于页二级菜单：放在 PageShell 标题下方，与右侧卡片对齐 */
 export function SystemSecondaryNav() {
   const { pathname } = useLocation()
 
   return (
-    <nav className="flex flex-col gap-2" aria-label="日志">
+    <nav className="flex flex-col gap-2" aria-label="关于">
       {secondaryNav.map((item) => {
         const Icon = item.icon
         const active = isNavActive(pathname, item.to, item.end)

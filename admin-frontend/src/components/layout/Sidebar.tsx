@@ -12,7 +12,7 @@ import {
   Sparkles,
   Bot,
   Images,
-  Settings2,
+  Info,
   type LucideIcon,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -157,7 +157,7 @@ function SystemFooterLink({ collapsed }: { collapsed: boolean }) {
   return (
     <NavLink
       to="/system"
-      title="日志"
+      title="关于"
       className={cn(
         'group flex rounded-xl transition-colors duration-150',
         collapsed
@@ -178,11 +178,11 @@ function SystemFooterLink({ collapsed }: { collapsed: boolean }) {
               : 'text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary',
           )}
         >
-          <Settings2 className="h-[18px] w-[18px]" {...iconProps} />
+          <Info className="h-[18px] w-[18px]" {...iconProps} />
         </span>
         {!collapsed && (
           <span className={cn('truncate leading-none', isActive && 'text-primary-foreground')}>
-            日志
+            关于
           </span>
         )}
       </span>
