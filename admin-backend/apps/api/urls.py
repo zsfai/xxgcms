@@ -1,6 +1,6 @@
 # coding:utf-8
 from django.urls import re_path
-from apps.api.controller import base, keyword, article, carousel, link, slugurl, ai, ssl, media
+from apps.api.controller import base, keyword, article, carousel, link, slugurl, ai, ssl, media, mcp_keys
 
 
 urlpatterns = [
@@ -93,22 +93,17 @@ urlpatterns = [
     re_path(r'^rename_media/', media.rename_media),
     re_path(r'^del_media/', media.del_media),
 
+    # MCP 连接器密钥（管理端）
+    re_path(r'^mcp/keys/list/', mcp_keys.list_keys),
+    re_path(r'^mcp/keys/create/', mcp_keys.create_key),
+    re_path(r'^mcp/keys/revoke/', mcp_keys.revoke_key),
+
     # AI（选题 / 写稿 / 配置）
     re_path(r'^ai/topic_suggest/', ai.topic_suggest),
     re_path(r'^ai/topic_update/', ai.topic_update),
     re_path(r'^ai/topic_confirm_generate/', ai.topic_confirm_generate),
     re_path(r'^ai/topic_session/', ai.topic_session),
     re_path(r'^ai/topic_sessions/', ai.topic_sessions),
-    re_path(r'^ai/verticals_admin/', ai.verticals_admin),
-    re_path(r'^ai/verticals/', ai.verticals_for_topic),
-    re_path(r'^ai/create_vertical/', ai.create_vertical),
-    re_path(r'^ai/update_vertical/', ai.update_vertical),
-    re_path(r'^ai/delete_vertical/', ai.delete_vertical),
-    re_path(r'^ai/templates_admin/', ai.templates_admin),
-    re_path(r'^ai/templates/', ai.templates_for_topic),
-    re_path(r'^ai/create_template/', ai.create_template),
-    re_path(r'^ai/update_template/', ai.update_template),
-    re_path(r'^ai/delete_template/', ai.delete_template),
     re_path(r'^ai/generate_article/', ai.generate_article),
     re_path(r'^ai/batch_generate/', ai.batch_generate),
     re_path(r'^ai/batch_job/', ai.batch_job),

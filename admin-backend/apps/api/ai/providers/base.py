@@ -2,7 +2,7 @@
 """AI provider abstract types."""
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 
 @dataclass
@@ -44,29 +44,6 @@ class ImageGenerateResult:
     raw_response: Optional[Dict[str, Any]] = None
 
 
-@dataclass
-class SearchResultItem:
-    title: str
-    url: str
-    snippet: str
-    published_at: Optional[str] = None
-
-
-@dataclass
-class SearchRequest:
-    queries: List[str]
-    max_results_per_query: int = 5
-    freshness: Optional[str] = None
-    params: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class SearchResult:
-    items: List[SearchResultItem]
-    provider: str = ''
-    raw_response: Optional[Dict[str, Any]] = None
-
-
 class TextProvider(ABC):
     @abstractmethod
     def generate(self, req: TextGenerateRequest, config: ResolvedProvider) -> TextGenerateResult:
@@ -76,10 +53,4 @@ class TextProvider(ABC):
 class ImageProvider(ABC):
     @abstractmethod
     def generate(self, req: ImageGenerateRequest, config: ResolvedProvider) -> ImageGenerateResult:
-        ...
-
-
-class SearchProvider(ABC):
-    @abstractmethod
-    def search(self, req: SearchRequest, config: ResolvedProvider) -> SearchResult:
         ...

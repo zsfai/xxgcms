@@ -59,8 +59,9 @@ src/pages/
 ├── sys/                          # Global (no site selection required)
 │   ├── SitePage.tsx
 │   ├── AiConfigPage.tsx
-│   ├── AiVerticalPage.tsx
-│   └── AiTemplatePage.tsx
+│   ├── LoginLogPage.tsx
+│   ├── ChangelogPage.tsx
+│   └── McpAccessPage.tsx
 ├── article/                      # Site-scoped features
 │   ├── ArticleListPage.tsx
 │   ├── AiTopicPage.tsx
@@ -82,17 +83,19 @@ Defined in `src/router/index.tsx`:
 |------|------|-------|
 | `/` | LoginPage | — |
 | `/sites` | SitePage | Global |
-| `/ai` | AiSettingsLayout | Global（二级：config / verticals / templates） |
+| `/ai` | AiSettingsLayout | Global（二级：config / mcp） |
 | `/ai/config` | AiConfigPage | Global |
-| `/ai/verticals` | AiVerticalPage | Global |
-| `/ai/templates` | AiTemplatePage | Global |
+| `/ai/mcp` | McpAccessPage | Global（MCP Key / 配置示例） |
 | `/articles` | ArticleListPage | Site |
 | `/ai-topics` | AiTopicPage | Site |
 | `/cates` | CatePage | Site |
 | `/keywords` | KeywordListPage | Site |
 | `/carousels` | CarouselPage | Site |
 | `/links` | FriendLinkPage | Site |
+| `/media` | MediaLibraryPage | Site |
 | `/conf` | SiteConfPage | Site |
+| `/system/login-logs` | LoginLogPage | Global |
+| `/system/changelog` | ChangelogPage | Global |
 
 Sidebar sections in `Sidebar.tsx`: global items vs `requiresSite: true` (disabled when no `domain` selected).
 
@@ -199,8 +202,7 @@ Reference: `src/pages/article/AiTopicPage.tsx` — form panels, polling, navigat
 | `/ai-topics` | `AiTopicPage.tsx` | Seed keyword → suggestions → select → confirm generate → poll → navigate `/articles?ai=1` |
 | `/ai` | `AiSettingsLayout.tsx` | Secondary tabs for AI admin pages |
 | `/ai/config` | `AiConfigPage.tsx` | Provider/model settings panel |
-| `/ai/verticals` | `AiVerticalPage.tsx` | Vertical CRUD |
-| `/ai/templates` | `AiTemplatePage.tsx` | Prompt template CRUD |
+| `/ai/mcp` | `McpAccessPage.tsx` | MCP Key + 桌面 Agent 配置示例 |
 
 AI API services (all in `service.ts`, prefix `/api/ai/`):
 
@@ -210,8 +212,6 @@ AI API services (all in `service.ts`, prefix `/api/ai/`):
 | `topicConfirmGenerateService` | `topic_confirm_generate/` |
 | `getTopicSessionService` | `topic_session/` |
 | `getTopicSessionsService` | `topic_sessions/` |
-| `getAiVerticalsService` | `verticals/` |
-| `getAiTemplatesService` | `templates/` |
 | `getAiConfigSettingsService` | `config_settings/` |
 
 `ArticleListPage.tsx` integrates AI: URL `?ai=1` filters `ai_only`, shows `AI` badge when `ai_generated === 'Y'`.
@@ -223,7 +223,6 @@ AI API services (all in `service.ts`, prefix `/api/ai/`):
 | Standard CRUD | `src/pages/article/FriendLinkPage.tsx` |
 | Complex list | `src/pages/article/ArticleListPage.tsx` |
 | Interactive / polling | `src/pages/article/AiTopicPage.tsx` |
-| Global admin CRUD | `src/pages/sys/AiVerticalPage.tsx` |
 | Config panel | `src/pages/sys/AiConfigPage.tsx` |
 
 ## DO NOT

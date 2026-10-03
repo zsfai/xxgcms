@@ -135,13 +135,34 @@ CREATE TABLE `login_log` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='管理后台登录日志';
 
 --
+-- MCP API keys (desktop agent ingest)
+--
+
+DROP TABLE IF EXISTS `mcp_api_key`;
+CREATE TABLE `mcp_api_key` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `name` varchar(64) NOT NULL DEFAULT '' COMMENT '备注名',
+  `key_prefix` varchar(16) NOT NULL COMMENT '明文前缀，用于列表展示',
+  `key_hash` varchar(64) NOT NULL COMMENT 'SHA-256 hex',
+  `site_id` int(11) DEFAULT NULL COMMENT 'NULL=该用户全部站点',
+  `enabled` char(1) NOT NULL DEFAULT 'Y' COMMENT 'Y:有效 N:已撤销',
+  `last_used_at` datetime DEFAULT NULL,
+  `create_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `mcp_api_key_hash_UN` (`key_hash`),
+  KEY `mcp_api_key_user_id_IDX` (`user_id`),
+  KEY `mcp_api_key_enabled_IDX` (`enabled`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='MCP 接入密钥';
+
+--
 -- AI: provider / model / prompt / topic / batch / log
 --
 
 DROP TABLE IF EXISTS `ai_provider`;
 CREATE TABLE `ai_provider` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `code` varchar(32) NOT NULL COMMENT 'deepseek/qwen/bocha/tavily',
+  `code` varchar(32) NOT NULL COMMENT 'deepseek/qwen',
   `name` varchar(64) NOT NULL,
   `provider_type` varchar(16) NOT NULL COMMENT 'text/image/search',
   `base_url` varchar(256) DEFAULT NULL,
@@ -159,7 +180,7 @@ CREATE TABLE `ai_model` (
   `provider_id` int(11) NOT NULL,
   `model_id` varchar(64) NOT NULL,
   `display_name` varchar(64) DEFAULT NULL,
-  `capability` varchar(16) NOT NULL COMMENT 'text_generation/image_generation/web_search',
+  `capability` varchar(16) NOT NULL COMMENT 'text_generation/image_generation',
   `is_default` char(1) NOT NULL DEFAULT 'N',
   `params` text DEFAULT NULL,
   `enabled` char(1) NOT NULL DEFAULT 'Y',
@@ -313,17 +334,13 @@ CREATE TABLE `ai_generation_log` (
 LOCK TABLES `ai_provider` WRITE;
 INSERT INTO `ai_provider` (`code`, `name`, `provider_type`, `base_url`, `api_key_env`, `enabled`) VALUES
 ('deepseek', 'DeepSeek', 'text', 'https://api.deepseek.com', 'DEEPSEEK_API_KEY', 'Y'),
-('qwen', '通义万相', 'image', 'https://dashscope.aliyuncs.com/api/v1', 'DASHSCOPE_API_KEY', 'Y'),
-('bocha', '博查搜索', 'search', 'https://api.bochaai.com', 'BOCHA_API_KEY', 'Y'),
-('tavily', 'Tavily', 'search', 'https://api.tavily.com', 'TAVILY_API_KEY', 'Y');
+('qwen', '通义万相', 'image', 'https://dashscope.aliyuncs.com/api/v1', 'DASHSCOPE_API_KEY', 'Y');
 UNLOCK TABLES;
 
 LOCK TABLES `ai_model` WRITE;
 INSERT INTO `ai_model` (`provider_id`, `model_id`, `display_name`, `capability`, `is_default`, `params`) VALUES
 (1, 'deepseek-v4-pro', 'DeepSeek V4 Pro', 'text_generation', 'Y', '{"temperature": 0.7, "max_tokens": 4096}'),
-(2, 'wan2.7-image-pro', '万相 2.7 Pro', 'image_generation', 'Y', '{"size": "2K"}'),
-(3, 'default', '博查默认', 'web_search', 'Y', '{"max_results": 5}'),
-(4, 'default', 'Tavily默认', 'web_search', 'N', '{"max_results": 5}');
+(2, 'wan2.7-image-pro', '万相 2.7 Pro', 'image_generation', 'Y', '{"size": "2K"}');
 UNLOCK TABLES;
 
 LOCK TABLES `ai_prompt_template` WRITE;
@@ -341,29 +358,29 @@ INSERT INTO `ai_vertical` (
 ) VALUES
 (
   'travel', '旅游', '旅游目的地、攻略、门票与出行实用内容',
-  '你是资深旅游内容策划编辑，熟悉国内旅游目的地、季节玩法、交通住宿与门票政策。根据联网检索摘要提炼选题建议。不得捏造检索中未出现的事实；不确定的价格、开放时间、政策须标注「待核实」。选题标题适合 SEO，角度清晰、可写性强。输出必须是合法 JSON，不要 markdown 代码块。',
-  '优先推荐有检索依据、对读者有决策价值的选题；避免空泛口号式标题。',
+  '你是资深旅游内容策划编辑，熟悉国内旅游目的地、季节玩法、交通住宿与门票政策。根据种子词与行业常识提炼选题建议。不得捏造无法核实的事实；不确定的价格、开放时间、政策须标注「待核实」。选题标题适合 SEO，角度清晰、可写性强。输出必须是合法 JSON，不要 markdown 代码块。',
+  '优先推荐对读者有决策价值的选题；避免空泛口号式标题。',
   '你是专业旅游攻略作者，擅长撰写实用、可落地的出行指南。结构清晰、信息密度高，含交通、门票、游玩顺序、避坑等可执行建议。不得捏造票价、开放时间、交通管制。时间敏感信息若无法核实须标注待核实。输出纯 JSON，不要 markdown。',
   '正文小节 3-5 个；image_hint 用英文描述场景，便于 AI 配图。',
-  '["{seed} 旅游攻略 {year}","{seed} 最新 门票 政策","{seed} 必去 景点 推荐","{seed} 交通 住宿 攻略","{seed} 最佳旅游时间"]',
+  '[]',
   'travel_guide', 800, 10, 'Y'
 ),
 (
   'news', '资讯', '行业动态、政策解读与时事资讯',
-  '你是资深资讯编辑，擅长从检索结果中提炼有新闻价值、可深度解读的选题。不得捏造事实与数据；不确定的信息标注「待核实」。选题应具备时效性与可读性。输出必须是合法 JSON，不要 markdown 代码块。',
+  '你是资深资讯编辑，擅长从种子词提炼有新闻价值、可深度解读的选题。不得捏造事实与数据；不确定的信息标注「待核实」。选题应具备时效性与可读性。输出必须是合法 JSON，不要 markdown 代码块。',
   '关注近半年内有讨论度的议题；标题客观，避免标题党。',
   '你是资深资讯作者，客观准确、逻辑清楚。导语点明核心信息，正文分层展开，避免空话套话。不得捏造数据与引述。输出纯 JSON，不要 markdown。',
-  '涉及政策、数据时若检索未证实，正文须写「待核实」或回避具体数字。',
-  '["{seed} 最新 动态 {year}","{seed} 行业 新闻","{seed} 政策 解读"]',
+  '涉及政策、数据时若无法核实，正文须写「待核实」或回避具体数字。',
+  '[]',
   'news_general', 800, 20, 'Y'
 ),
 (
   'general', '通用', '通用主题内容，适合多数站点',
-  '你是资深内容策划编辑，能根据种子词与检索摘要提炼多样化选题。不得捏造检索中未出现的事实；不确定信息标注「待核实」。选题互不重复、适合 SEO。输出必须是合法 JSON，不要 markdown 代码块。',
+  '你是资深内容策划编辑，能根据种子词提炼多样化选题。不得捏造无法核实的事实；不确定信息标注「待核实」。选题互不重复、适合 SEO。输出必须是合法 JSON，不要 markdown 代码块。',
   '兼顾入门指南、常见问题、对比选购等读者常搜需求。',
   '你是资深内容作者，表达清晰、信息有用。根据标题与背景写出完整文章，不得捏造数据。输出纯 JSON，不要 markdown。',
   '正文 3-5 小节；每节配图 hint 用英文描述画面。',
-  '["{seed} 介绍","{seed} 攻略 {year}","{seed} 常见问题"]',
+  '[]',
   'news_general', 800, 30, 'Y'
 );
 UNLOCK TABLES;

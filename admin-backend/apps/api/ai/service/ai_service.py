@@ -6,22 +6,22 @@ from apps.api.ai.service.batch_runner import start_job_async
 from apps.api.service import article_service
 
 
-def generate_single(site_name, title, cate_id, template_code, word_count, image_mode, user_name,
+def generate_single(site_name, title, cate_id, word_count, image_mode, user_name,
                     text_model_id=None, image_model_id=None):
     return run_article_generate(
-        site_name, title, cate_id, template_code, word_count, image_mode,
+        site_name, title, cate_id, word_count, image_mode,
         text_model_id=text_model_id, image_model_id=image_model_id,
     )
 
 
-def batch_from_titles(site_name, titles, cate_id, template_code, word_count, image_mode, user_name):
+def batch_from_titles(site_name, titles, cate_id, word_count, image_mode, user_name):
     titles = [t.strip() for t in titles if (t or '').strip()]
     if not titles:
         raise ValueError('标题列表为空')
     if len(titles) > 10:
         raise ValueError('单次最多 10 条标题')
     job_id = ai_mapper.create_batch_job(
-        site_name, None, cate_id, template_code, word_count, image_mode, len(titles), user_name,
+        site_name, None, cate_id, 'default', word_count, image_mode, len(titles), user_name,
     )
     for t in titles:
         ai_mapper.create_batch_item(job_id, t)
@@ -41,7 +41,7 @@ def regenerate_body(site_name, article_id):
     title = info.get('title', '')
     cate_id = info.get('cate_id', -1)
     result = run_article_generate(
-        site_name, title, cate_id, 'news_general', 800, 'none',
+        site_name, title, cate_id, 800, 'none',
     )
     article_service.add_or_update_article(
         site_name, article_id, cate_id, title, info.get('show_type', 1),

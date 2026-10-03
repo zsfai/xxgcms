@@ -143,3 +143,20 @@ def del_media(site_name, media_id):
         except Exception as exc:
             log_error('删除媒体文件失败 %s: %s' % (file_path, str(exc)))
     return True
+
+
+def register_saved_file(site_name, display_name, file_path, ext_name, file_size):
+    """登记已写入存储的文件到媒体库。"""
+    name = (display_name or 'image.jpg')[:255]
+    ext = (ext_name or 'jpg').lower().lstrip('.')
+    file_type = classify_file_type(ext)
+    with cms_x_connection(site_name) as conn:
+        with conn.cursor() as cursor:
+            cursor.execute(
+                MediaMapper.insert_media(),
+                (name, file_path, ext, file_type, int(file_size or 0)),
+            )
+            media_id = cursor.lastrowid
+            conn.commit()
+            cursor.execute(MediaMapper.select_media_by_id(), (media_id,))
+            return _decorate_row(cursor.fetchone())

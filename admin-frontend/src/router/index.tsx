@@ -12,11 +12,10 @@ import { AiTopicPage } from '@/pages/article/AiTopicPage'
 import { SitePage } from '@/pages/sys/SitePage'
 import { AiSettingsLayout } from '@/pages/sys/AiSettingsLayout'
 import { AiConfigPage } from '@/pages/sys/AiConfigPage'
-import { AiVerticalPage } from '@/pages/sys/AiVerticalPage'
-import { AiTemplatePage } from '@/pages/sys/AiTemplatePage'
 import { SystemLayout } from '@/pages/sys/SystemLayout'
 import { LoginLogPage } from '@/pages/sys/LoginLogPage'
 import { ChangelogPage } from '@/pages/sys/ChangelogPage'
+import { McpAccessPage } from '@/pages/sys/McpAccessPage'
 
 const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || undefined
 
@@ -45,6 +44,7 @@ export const router = createBrowserRouter(
           children: [
             { index: true, element: <Navigate to="login-logs" replace /> },
             { path: 'login-logs', element: <LoginLogPage /> },
+            { path: 'mcp', element: <Navigate to="/ai/mcp" replace /> },
             { path: 'changelog', element: <ChangelogPage /> },
           ],
         },
@@ -54,13 +54,14 @@ export const router = createBrowserRouter(
           children: [
             { index: true, element: <Navigate to="config" replace /> },
             { path: 'config', element: <AiConfigPage /> },
-            { path: 'verticals', element: <AiVerticalPage /> },
-            { path: 'templates', element: <AiTemplatePage /> },
+            { path: 'mcp', element: <McpAccessPage /> },
+            { path: 'verticals', element: <Navigate to="/ai/config" replace /> },
+            { path: 'templates', element: <Navigate to="/ai/config" replace /> },
           ],
         },
         { path: 'ai-config', element: <Navigate to="/ai/config" replace /> },
-        { path: 'ai-verticals', element: <Navigate to="/ai/verticals" replace /> },
-        { path: 'ai-templates', element: <Navigate to="/ai/templates" replace /> },
+        { path: 'ai-verticals', element: <Navigate to="/ai/config" replace /> },
+        { path: 'ai-templates', element: <Navigate to="/ai/config" replace /> },
       ],
     },
     { path: '*', element: <Navigate to="/" replace /> },

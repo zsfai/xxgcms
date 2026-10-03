@@ -35,7 +35,7 @@ const menuSections: MenuSection[] = [
     title: '全局',
     items: [
       { to: '/sites', label: '站点管理', icon: Globe2 },
-      { to: '/ai', label: 'AI 管理', icon: Bot },
+      { to: '/ai', label: 'AI 配置', icon: Bot },
     ],
   },
   {
@@ -71,7 +71,7 @@ function SidebarBrand() {
 
 function pathMatchesMenu(pathname: string, to: string) {
   if (to === '/ai') {
-    // 仅匹配 AI 管理子页，避免与 /ai-topics 冲突
+    // 仅匹配 AI 配置子页，避免与 /ai-topics 冲突
     return pathname === '/ai' || pathname.startsWith('/ai/')
   }
   return pathname === to

@@ -139,8 +139,6 @@ def main() -> int:
         ("/api/ai/config_settings/", {}),
         ("/api/ai/providers/", {}),
         ("/api/ai/models/", {}),
-        ("/api/ai/verticals/", {}),
-        ("/api/ai/templates/", {}),
         ("/api/get_article_list/", {"domain": args.domain, "page_num": 1, "page_size": 10}),
         ("/api/get_cate_list/", {"domain": args.domain, "page_num": 1, "page_size": 10}),
         ("/api/get_kw_list/", {"domain": args.domain, "page_num": 1, "page_size": 10}),

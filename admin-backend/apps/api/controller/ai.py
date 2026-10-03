@@ -2,7 +2,6 @@
 from django.views.decorators.csrf import csrf_exempt
 
 from apps.api.ai.service import ai_service, topic_service
-from apps.api.ai.service import vertical_service, template_service
 from apps.api.utils.perm_wrapper import perm
 from apps.api.utils.public import log_error
 from apps.api.utils.response import api_error, api_success, parse_json
@@ -44,10 +43,8 @@ def topic_suggest(request):
         data = topic_service.suggest_topics(
             domain,
             req.get('seed_keyword', ''),
-            req.get('vertical', 'general'),
             req.get('cate_id'),
             req.get('suggest_count', 10),
-            req.get('search_provider'),
             request.xxgcms_user,
         )
         return api_success(data=_serialize_session(data))
@@ -76,7 +73,6 @@ def topic_confirm_generate(request):
         job_id = topic_service.confirm_and_generate(
             req.get('session_id'),
             req.get('suggestion_ids', []),
-            req.get('template_code', 'news_general'),
             req.get('word_count', 800),
             req.get('image_mode', 'ai'),
             request.xxgcms_user,
@@ -113,112 +109,6 @@ def topic_sessions(request):
 
 @csrf_exempt
 @perm(code=None)
-def verticals_for_topic(request):
-    try:
-        return api_success(data=vertical_service.list_for_topic_page())
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def verticals_admin(request):
-    try:
-        return api_success(data=vertical_service.list_for_admin())
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def create_vertical(request):
-    try:
-        req = parse_json(request)
-        data = vertical_service.create_vertical(req)
-        return api_success(data=data, ret=True)
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def update_vertical(request):
-    try:
-        req = parse_json(request)
-        vertical_id = int(req.get('id'))
-        data = vertical_service.update_vertical(vertical_id, req)
-        return api_success(data=data, ret=True)
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def delete_vertical(request):
-    try:
-        req = parse_json(request)
-        vertical_id = int(req.get('id'))
-        vertical_service.delete_vertical(vertical_id)
-        return api_success(ret=True)
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def templates_for_topic(request):
-    try:
-        return api_success(data=template_service.list_for_topic())
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def templates_admin(request):
-    try:
-        return api_success(data=template_service.list_for_admin())
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def create_template(request):
-    try:
-        req = parse_json(request)
-        data = template_service.create_template(req)
-        return api_success(data=data, ret=True)
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def update_template(request):
-    try:
-        req = parse_json(request)
-        template_id = int(req.get('id'))
-        data = template_service.update_template(template_id, req)
-        return api_success(data=data, ret=True)
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
-def delete_template(request):
-    try:
-        req = parse_json(request)
-        template_id = int(req.get('id'))
-        template_service.delete_template(template_id)
-        return api_success(ret=True)
-    except Exception as exc:
-        return api_error(str(exc))
-
-
-@csrf_exempt
-@perm(code=None)
 def generate_article(request):
     try:
         req = parse_json(request)
@@ -227,7 +117,6 @@ def generate_article(request):
             domain,
             req.get('title', ''),
             req.get('cate_id'),
-            req.get('template_code', 'news_general'),
             req.get('word_count', 800),
             req.get('image_mode', 'ai'),
             request.xxgcms_user,
@@ -249,7 +138,6 @@ def batch_generate(request):
             domain,
             req.get('titles', []),
             req.get('cate_id'),
-            req.get('template_code', 'news_general'),
             req.get('word_count', 800),
             req.get('image_mode', 'ai'),
             request.xxgcms_user,
@@ -389,7 +277,6 @@ def update_default_providers(request):
         ai_service.update_default_providers(
             default_text_provider=req.get('default_text_provider'),
             default_image_provider=req.get('default_image_provider'),
-            default_search_provider=req.get('default_search_provider'),
         )
         return api_success(ret=True, data=ai_service.get_admin_config())
     except Exception as exc:

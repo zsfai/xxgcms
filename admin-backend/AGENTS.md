@@ -22,8 +22,9 @@ AI sub-package follows the same pattern under `apps/api/ai/` with its own mapper
 
 | Purpose | Path |
 |---------|------|
-| Root URL | `apps/urls.py` → prefix `/api/` |
+| Root URL | `apps/urls.py` → `/api/`、`/mcp/` |
 | API routes | `apps/api/urls.py` |
+| MCP endpoint | `apps/api/mcp/`（Streamable HTTP JSON-RPC，Bearer MCP Key） |
 | Controllers | `apps/api/controller/` |
 | Services | `apps/api/service/` |
 | SQL mappers | `apps/api/sql_mapper/` |
@@ -44,7 +45,7 @@ Use context managers from `apps/api/db/connection.py`:
 
 | Function | Database | Tables |
 |----------|----------|--------|
-| `xxgcms_connection()` | System `xxgcms` | `user`, `site`, `site_user`, `ai_*` |
+| `xxgcms_connection()` | System `xxgcms` | `user`, `site`, `site_user`, `mcp_api_key`, `ai_*` |
 | `cms_x_connection(domain)` | Site processed DB `db_x_*` | `article`, `cate`, `keyword`, `carousel`, `friend_link`, `site_conf` |
 | `cms_connection(domain)` | Site source DB `db_*` | Read-only legacy data |
 
@@ -67,6 +68,7 @@ Use context managers from `apps/api/db/connection.py`:
 - Body: JSON (`parse_json`) or `multipart/form-data` for uploads
 - Site context: field `domain` (site `name`) or header `HTTP_DOMAIN`
 - Auth header: `HTTP_AUTH_KEY`
+- MCP 远程接入：`POST /mcp`，`Authorization: Bearer <mcp_api_key>`（管理端在 `/api/mcp/keys/` 签发）
 
 ### Response
 
@@ -133,6 +135,21 @@ If new tables/columns needed:
 5. Update `sql/xxgcms.sql` or `sql/cmsdb.sql` (or add `sql/patch_*.sql`)
 6. Run `python manage.py sync_db` (or `./scripts/xxgcms.sh sync-db`)
 
+## MCP Ingest
+
+Remote Streamable HTTP JSON-RPC on `POST /mcp` (no SSE). Desktop agents push **draft** articles.
+
+| Path | Role |
+|------|------|
+| `apps/api/mcp/views.py` | HTTP entry (`csrf_exempt`，不用 `@perm`) |
+| `apps/api/mcp/protocol.py` | `initialize` / `ping` / `tools/list` / `tools/call` |
+| `apps/api/mcp/tools.py` | `list_sites` / `list_categories` / `upload_image` / `push_article` |
+| `apps/api/service/mcp_key_service.py` | Key 签发与 hash 校验 |
+| `apps/api/service/mcp_push_service.py` | 分类匹配、图片压缩入库 |
+| `apps/api/utils/image_normalize.py` | JPEG ≤1MB、最长边 ≤1200px |
+
+Admin key APIs (`@perm`): `/api/mcp/keys/list|create|revoke/`
+
 ## AI Module
 
 Recent focus area. Root: `apps/api/ai/`
@@ -143,25 +160,23 @@ Recent focus area. Root: `apps/api/ai/`
 |------|------|
 | `apps/api/controller/ai.py` | HTTP entry (imports from `apps/api/ai/service/`) |
 | `service/topic_service.py` | Topic sessions, confirm generate |
-| `service/template_service.py` | Prompt template CRUD |
-| `service/vertical_service.py` | Vertical (industry) CRUD |
 | `service/ai_service.py` | Single/batch article generation |
 | `service/config_service.py` | Provider/model config |
 | `service/batch_runner.py` | Async batch jobs (thread, not Celery) |
-| `pipeline/topic_pipeline.py` | Search → LLM → suggestions |
+| `pipeline/topic_pipeline.py` | LLM → suggestions |
 | `pipeline/article_pipeline.py` | LLM → metadata → cover image → save draft |
 | `mapper/ai_mapper.py` | `ai_*` table SQL |
 | `prompts/` | Prompt builders |
-| `providers/registry.py` | Text / Image / Search provider registry |
+| `providers/registry.py` | Text / Image provider registry |
 | `config/model_config.py` | Load provider config from DB |
 
 ### Provider Registry
 
-Three provider types: **Text**, **Image**, **Search**.
+Two provider types: **Text**, **Image**.
 
 - Registry: `apps/api/ai/providers/registry.py`
 - Registration triggered by import in `apps/api/ai/providers/__init__.py` (called from `apps.py` `ready()`)
-- Implemented: `deepseek_text`, `qwen_image`, `bocha_search`, `tavily_search`
+- Implemented: `deepseek_text`, `qwen_image`
 
 To add a provider:
 
@@ -173,9 +188,11 @@ To add a provider:
 ### AI Flow
 
 ```
-topic_suggest → topic_pipeline → search (optional) → DeepSeek → ai_topic_suggestion
+topic_suggest → topic_pipeline → DeepSeek → ai_topic_suggestion
 topic_confirm_generate → batch_runner → article_pipeline → article (draft)
 ```
+
+选题与写稿使用 `prompts/topic_prompts.py` 中的固定内容向提示词，不再读取 `ai_vertical` / `ai_prompt_template`（表仍保留，无管理接口）。
 
 Key endpoints (all under `/api/ai/`):
 
@@ -184,8 +201,6 @@ Key endpoints (all under `/api/ai/`):
 | `topic_suggest/` | Generate topic suggestions from seed keyword |
 | `topic_confirm_generate/` | Confirm selected topics, start write job |
 | `topic_session/` / `topic_sessions/` | Query session status/history |
-| `verticals/` / `templates/` | Read-only lists for topic page |
-| `verticals_admin/` / `templates_admin/` | Admin CRUD |
 | `generate_article/` | Direct write from known title |
 | `config_settings/` | Provider/model configuration |
 
@@ -233,7 +248,6 @@ See `.env.example`. Key groups:
 | `XXGCMS_MEDIA_URL` | Media URL prefix |
 | `DEEPSEEK_API_KEY` | Text generation |
 | `DASHSCOPE_API_KEY` | Qwen image generation |
-| `BOCHA_API_KEY`, `TAVILY_API_KEY` | Web search providers |
 
 Fields marked `__AUTO__` are randomly generated on first `setup`.
 

@@ -51,7 +51,6 @@ interface AiModelRow {
 interface AiDefaults {
   default_text_provider: string
   default_image_provider: string
-  default_search_provider: string
 }
 
 export function AiConfigPage() {
@@ -61,7 +60,6 @@ export function AiConfigPage() {
   const [defaults, setDefaults] = useState<AiDefaults>({
     default_text_provider: 'deepseek',
     default_image_provider: 'qwen',
-    default_search_provider: 'bocha',
   })
   const [providerKeys, setProviderKeys] = useState<Record<number, string>>({})
   const [providerEdits, setProviderEdits] = useState<Record<number, Partial<AiProviderRow>>>({})
@@ -99,7 +97,6 @@ export function AiConfigPage() {
 
   const textProviders = providers.filter((p) => p.provider_type === 'text')
   const imageProviders = providers.filter((p) => p.provider_type === 'image')
-  const searchProviders = providers.filter((p) => p.provider_type === 'search')
 
   const primaryModel = (providerId: number) => {
     const list = models.filter((m) => m.provider_id === providerId)
@@ -211,7 +208,7 @@ export function AiConfigPage() {
     <>
       <Loading loading={loading} />
       <PageShell
-        title="AI 配置"
+        title="模型配置"
         description="在界面管理 API Key、默认 Provider 与模型，无需改环境变量"
         sideNav={<AiSecondaryNav />}
       >
@@ -247,20 +244,6 @@ export function AiConfigPage() {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="dialog-form-row">
-                <Label>联网检索</Label>
-                <Select
-                  value={defaults.default_search_provider}
-                  onValueChange={(v) => setDefaults((d) => ({ ...d, default_search_provider: v }))}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {searchProviders.map((p) => (
-                      <SelectItem key={p.code} value={p.code}>{p.name}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
             </div>
             <Button variant="outline" onClick={saveDefaults}>
               <Save className="h-4 w-4" />
@@ -273,7 +256,7 @@ export function AiConfigPage() {
           <section className="space-y-4">
             <h4 className="text-sm font-medium text-muted-foreground">Provider 与 API Key</h4>
             <div className="space-y-6">
-              {providers.map((p) => (
+              {providers.filter((p) => p.provider_type !== 'search').map((p) => (
                 <div key={p.id} className="rounded-lg border p-4 space-y-3">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="font-medium">{p.name}</span>

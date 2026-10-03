@@ -38,6 +38,15 @@ export const getLoginLogListService = (data: Record<string, unknown>) =>
 export const getChangelogService = () =>
   axios.post('/api/get_changelog/', {}) as Promise<ApiResponse>
 
+export const getMcpKeyListService = () =>
+  axios.post('/api/mcp/keys/list/', {}) as Promise<ApiResponse>
+
+export const createMcpKeyService = (data: { name: string; site_id?: number | null }) =>
+  axios.post('/api/mcp/keys/create/', data) as Promise<ApiResponse>
+
+export const revokeMcpKeyService = (data: { id: number }) =>
+  axios.post('/api/mcp/keys/revoke/', data) as Promise<ApiResponse>
+
 export const changePasswordService = (data: { old_pwd: string; new_pwd: string }) =>
   axios.post('/api/change_password/', data) as Promise<ApiResponse>
 
@@ -225,36 +234,6 @@ export const getTopicSessionService = (data: Record<string, unknown>) =>
 
 export const getTopicSessionsService = (data: Record<string, unknown> = {}) =>
   axios.post('/api/ai/topic_sessions/', xData(data)) as Promise<ApiResponse>
-
-export const getAiVerticalsService = () =>
-  axios.post('/api/ai/verticals/', xData({})) as Promise<ApiResponse>
-
-export const getAiVerticalsAdminService = () =>
-  axios.post('/api/ai/verticals_admin/', xData({})) as Promise<ApiResponse>
-
-export const createAiVerticalService = (data: Record<string, unknown>) =>
-  axios.post('/api/ai/create_vertical/', xData(data)) as Promise<ApiResponse>
-
-export const updateAiVerticalService = (data: Record<string, unknown>) =>
-  axios.post('/api/ai/update_vertical/', xData(data)) as Promise<ApiResponse>
-
-export const deleteAiVerticalService = (data: Record<string, unknown>) =>
-  axios.post('/api/ai/delete_vertical/', xData(data)) as Promise<ApiResponse>
-
-export const getAiTemplatesService = () =>
-  axios.post('/api/ai/templates/', xData({})) as Promise<ApiResponse>
-
-export const getAiTemplatesAdminService = () =>
-  axios.post('/api/ai/templates_admin/', xData({})) as Promise<ApiResponse>
-
-export const createAiTemplateService = (data: Record<string, unknown>) =>
-  axios.post('/api/ai/create_template/', xData(data)) as Promise<ApiResponse>
-
-export const updateAiTemplateService = (data: Record<string, unknown>) =>
-  axios.post('/api/ai/update_template/', xData(data)) as Promise<ApiResponse>
-
-export const deleteAiTemplateService = (data: Record<string, unknown>) =>
-  axios.post('/api/ai/delete_template/', xData(data)) as Promise<ApiResponse>
 
 export const generateArticleAiService = (data: Record<string, unknown>) =>
   axios.post('/api/ai/generate_article/', xData(data)) as Promise<ApiResponse>

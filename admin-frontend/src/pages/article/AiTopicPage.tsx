@@ -1,10 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { Sparkles, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
-  getAiTemplatesService,
-  getAiVerticalsService,
   getTopicSessionService,
   getTopicSessionsService,
   topicConfirmGenerateService,
@@ -40,36 +38,16 @@ interface TopicSessionEntry {
   session: {
     id: number
     seed_keyword: string
-    vertical: string
     status: string
     add_time?: string
-    search_provider?: string
   }
   suggestions: TopicSuggestion[]
-}
-
-interface VerticalOption {
-  code: string
-  name: string
-  description?: string
-  default_template_code?: string
-  default_word_count?: number
-}
-
-interface TemplateOption {
-  code: string
-  name: string
 }
 
 export function AiTopicPage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [seed, setSeed] = useState('')
-  const [vertical, setVertical] = useState('')
-  const [verticalOptions, setVerticalOptions] = useState<VerticalOption[]>([])
-  const [templateOptions, setTemplateOptions] = useState<TemplateOption[]>([])
-  const [searchProvider, setSearchProvider] = useState('none')
-  const [templateCode, setTemplateCode] = useState('')
   const [wordCount, setWordCount] = useState('800')
   const [imageMode, setImageMode] = useState('ai')
   const [sessionId, setSessionId] = useState<number | null>(null)
@@ -77,24 +55,6 @@ export function AiTopicPage() {
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [jobProgress, setJobProgress] = useState<{ done: number; total: number; status?: string } | null>(null)
   const [historySessions, setHistorySessions] = useState<TopicSessionEntry[]>([])
-
-  const verticalLabelMap = useMemo(() => {
-    const map: Record<string, string> = {}
-    verticalOptions.forEach((v) => {
-      map[v.code] = v.name
-    })
-    return map
-  }, [verticalOptions])
-
-  const applyVerticalDefaults = useCallback((code: string) => {
-    const item = verticalOptions.find((v) => v.code === code)
-    if (!item) return
-    if (item.default_template_code) {
-      const exists = templateOptions.some((t) => t.code === item.default_template_code)
-      if (exists) setTemplateCode(item.default_template_code)
-    }
-    if (item.default_word_count) setWordCount(String(item.default_word_count))
-  }, [verticalOptions, templateOptions])
 
   const loadHistory = useCallback(async () => {
     const res = await getTopicSessionsService({ limit: 10 })
@@ -104,35 +64,6 @@ export function AiTopicPage() {
   }, [])
 
   useEffect(() => {
-    const init = async () => {
-      const [verticalRes, templateRes] = await Promise.all([
-        getAiVerticalsService(),
-        getAiTemplatesService(),
-      ])
-      let templates: TemplateOption[] = []
-      if (templateRes.code === 0 && Array.isArray(templateRes.data)) {
-        templates = templateRes.data as TemplateOption[]
-        setTemplateOptions(templates)
-      }
-      if (verticalRes.code === 0 && Array.isArray(verticalRes.data)) {
-        const list = verticalRes.data as VerticalOption[]
-        setVerticalOptions(list)
-        if (list.length > 0) {
-          const first = list[0]
-          setVertical(first.code)
-          const defaultTemplate = first.default_template_code
-          if (defaultTemplate && templates.some((t) => t.code === defaultTemplate)) {
-            setTemplateCode(defaultTemplate)
-          } else if (templates.length > 0) {
-            setTemplateCode(templates[0].code)
-          }
-          if (first.default_word_count) setWordCount(String(first.default_word_count))
-        } else if (templates.length > 0) {
-          setTemplateCode(templates[0].code)
-        }
-      }
-    }
-    void init()
     void loadHistory()
   }, [loadHistory])
 
@@ -172,19 +103,13 @@ export function AiTopicPage() {
       toast.error('请输入种子词，如：张家界')
       return
     }
-    if (!vertical) {
-      toast.error('请先配置并选择垂类')
-      return
-    }
     setLoading(true)
     setJobProgress(null)
     setSelected(new Set())
     try {
       const res = await topicSuggestService({
         seed_keyword: seed.trim(),
-        vertical,
         suggest_count: 10,
-        search_provider: searchProvider,
       })
       if (res.code === 0 && res.data) {
         const data = res.data as { session: { id: number }; suggestions: TopicSuggestion[] }
@@ -225,7 +150,6 @@ export function AiTopicPage() {
       const res = await topicConfirmGenerateService({
         session_id: sessionId,
         suggestion_ids: Array.from(selected),
-        template_code: templateCode,
         word_count: Number(wordCount),
         image_mode: imageMode,
       })
@@ -248,7 +172,7 @@ export function AiTopicPage() {
       <Loading loading={loading && !jobProgress} />
       <PageShell
         title="AI 选题助手"
-        description="输入种子词，联网获取选题建议；确认后自动生成文章草稿"
+        description="输入种子词获取选题建议；确认后自动生成文章草稿"
       >
         <div className="content-panel space-y-6 p-6">
           <div className="space-y-2.5">
@@ -259,43 +183,6 @@ export function AiTopicPage() {
                 value={seed}
                 onChange={(e) => setSeed(e.target.value)}
               />
-            </div>
-            <div className="dialog-form-row-top">
-              <FormLabel required>垂类</FormLabel>
-              <div className="min-w-0 space-y-1">
-                <Select
-                  value={vertical}
-                  onValueChange={(v) => {
-                    setVertical(v)
-                    applyVerticalDefaults(v)
-                  }}
-                >
-                  <SelectTrigger><SelectValue placeholder="选择垂类" /></SelectTrigger>
-                  <SelectContent>
-                    {verticalOptions.map((v) => (
-                      <SelectItem key={v.code} value={v.code}>
-                        {v.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {verticalOptions.find((v) => v.code === vertical)?.description && (
-                  <p className="text-xs text-muted-foreground">
-                    {verticalOptions.find((v) => v.code === vertical)?.description}
-                  </p>
-                )}
-              </div>
-            </div>
-            <div className="dialog-form-row">
-              <Label>检索源</Label>
-              <Select value={searchProvider} onValueChange={setSearchProvider}>
-                <SelectTrigger className="max-w-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">不联网（仅 DeepSeek）</SelectItem>
-                  <SelectItem value="bocha">博查（联网）</SelectItem>
-                  <SelectItem value="tavily">Tavily（联网）</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
           <div className="dialog-form-row">
@@ -358,26 +245,6 @@ export function AiTopicPage() {
 
           {suggestions.length > 0 && (
             <div className="space-y-2.5 border-t pt-4">
-              <div className="dialog-form-row-top">
-                <Label>写稿模板</Label>
-                <div className="min-w-0 space-y-1">
-                  <Select value={templateCode || undefined} onValueChange={setTemplateCode}>
-                    <SelectTrigger className="w-full max-w-xs"><SelectValue placeholder="选择模板" /></SelectTrigger>
-                    <SelectContent>
-                      {templateOptions.map((t) => (
-                        <SelectItem key={t.code} value={t.code}>{t.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground">
-                    来自后台「模板管理」配置，可
-                    <Link to="/ai/templates" className="text-primary underline-offset-2 hover:underline">
-                      自定义模板与提示词
-                    </Link>
-                    ；切换垂类会自动带入其默认模板。
-                  </p>
-                </div>
-              </div>
               <div className="dialog-form-row">
                 <Label>字数</Label>
                 <Select value={wordCount} onValueChange={setWordCount}>
@@ -438,8 +305,6 @@ export function AiTopicPage() {
                       <div key={sess.id} className="space-y-1.5">
                         <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
                           <span>{sess.seed_keyword}</span>
-                          <span>·</span>
-                          <span>{verticalLabelMap[sess.vertical] || sess.vertical}</span>
                           <span>·</span>
                           <span>{generatedCount} 篇</span>
                           {sess.add_time && (

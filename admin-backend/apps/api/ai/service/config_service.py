@@ -8,13 +8,11 @@ from apps.api.db.connection import xxgcms_connection
 SETTING_KEYS = (
     'default_text_provider',
     'default_image_provider',
-    'default_search_provider',
 )
 
 CAPABILITY_BY_PROVIDER_TYPE = {
     'text': 'text_generation',
     'image': 'image_generation',
-    'search': 'web_search',
 }
 
 
@@ -64,6 +62,8 @@ def get_admin_config():
             )
             providers = []
             for row in cursor.fetchall():
+                if row.get('provider_type') == 'search':
+                    continue
                 key = (row.get('api_key') or '').strip()
                 if key and not _is_plausible_api_key(key):
                     key = ''
@@ -89,6 +89,8 @@ def get_admin_config():
             )
             models = []
             for row in cursor.fetchall():
+                if row.get('capability') == 'web_search':
+                    continue
                 models.append({
                     'id': row['id'],
                     'provider_id': row['provider_id'],
@@ -109,8 +111,6 @@ def get_admin_config():
         defaults['default_text_provider'] = os.environ.get('AI_DEFAULT_TEXT_PROVIDER', 'deepseek')
     if not defaults.get('default_image_provider'):
         defaults['default_image_provider'] = os.environ.get('AI_DEFAULT_IMAGE_PROVIDER', 'qwen')
-    if not defaults.get('default_search_provider'):
-        defaults['default_search_provider'] = os.environ.get('AI_DEFAULT_SEARCH_PROVIDER', 'bocha')
     return {'providers': providers, 'models': models, 'defaults': defaults}
 
 
@@ -228,15 +228,13 @@ def create_model(provider_id, model_id_str, display_name=None, is_default=False,
     return new_id
 
 
-def update_defaults(default_text_provider=None, default_image_provider=None, default_search_provider=None):
+def update_defaults(default_text_provider=None, default_image_provider=None):
     with xxgcms_connection() as conn:
         with conn.cursor() as cursor:
             if default_text_provider:
                 _set_setting(cursor, 'default_text_provider', default_text_provider)
             if default_image_provider:
                 _set_setting(cursor, 'default_image_provider', default_image_provider)
-            if default_search_provider:
-                _set_setting(cursor, 'default_search_provider', default_search_provider)
             conn.commit()
     model_config.refresh_cache()
     return True
@@ -250,5 +248,4 @@ def seed_system_defaults_if_empty():
                 return
             _set_setting(cursor, 'default_text_provider', 'deepseek')
             _set_setting(cursor, 'default_image_provider', 'qwen')
-            _set_setting(cursor, 'default_search_provider', 'bocha')
             conn.commit()

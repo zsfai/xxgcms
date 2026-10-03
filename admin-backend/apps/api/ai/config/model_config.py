@@ -12,19 +12,16 @@ _CACHE: Dict[str, Any] = {'loaded': False, 'providers': {}, 'models': {}, 'setti
 CAPABILITY_TO_SETTING = {
     'text_generation': 'default_text_provider',
     'image_generation': 'default_image_provider',
-    'web_search': 'default_search_provider',
 }
 
 CAPABILITY_TO_ENV = {
     'text_generation': 'AI_DEFAULT_TEXT_PROVIDER',
     'image_generation': 'AI_DEFAULT_IMAGE_PROVIDER',
-    'web_search': 'AI_DEFAULT_SEARCH_PROVIDER',
 }
 
 CAPABILITY_FALLBACK = {
     'text_generation': 'deepseek',
     'image_generation': 'qwen',
-    'web_search': 'bocha',
 }
 
 
@@ -58,6 +55,8 @@ def load_cache(force=False):
                 ('Y',),
             )
             for row in cursor.fetchall():
+                if row.get('provider_type') == 'search':
+                    continue
                 providers[row['code']] = row
             cursor.execute(
                 'SELECT m.*, p.code AS provider_code, p.base_url, p.api_key_env, p.api_key '
@@ -67,6 +66,8 @@ def load_cache(force=False):
             )
             for row in cursor.fetchall():
                 cap = row['capability']
+                if cap == 'web_search':
+                    continue
                 models_by_cap.setdefault(cap, []).append(row)
             cursor.execute('SELECT config_key, config_value FROM ai_system_setting')
             for row in cursor.fetchall():
@@ -146,7 +147,6 @@ def list_models():
     load_cache()
     text_models = []
     image_models = []
-    search_providers = []
     for cap, rows in _CACHE['models'].items():
         for row in rows:
             item = {
@@ -161,14 +161,7 @@ def list_models():
                 text_models.append(item)
             elif cap == 'image_generation':
                 image_models.append(item)
-    for code, prov in _CACHE['providers'].items():
-        if prov.get('provider_type') == 'search':
-            search_providers.append({
-                'code': code,
-                'name': prov.get('name') or code,
-                'is_default': code == _default_provider_code('web_search'),
-            })
-    return {'text_models': text_models, 'image_models': image_models, 'search_providers': search_providers}
+    return {'text_models': text_models, 'image_models': image_models}
 
 
 def list_providers():

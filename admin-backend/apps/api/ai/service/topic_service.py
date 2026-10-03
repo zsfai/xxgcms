@@ -5,9 +5,9 @@ from apps.api.ai.service.batch_runner import start_job_async
 from apps.api.db.connection import xxgcms_connection
 
 
-def suggest_topics(site_name, seed_keyword, vertical, cate_id, suggest_count, search_provider, user_name):
+def suggest_topics(site_name, seed_keyword, cate_id, suggest_count, user_name):
     return run_topic_suggest(
-        site_name, seed_keyword, vertical, cate_id, suggest_count, search_provider, user_name,
+        site_name, seed_keyword, cate_id, suggest_count, user_name,
     )
 
 
@@ -15,7 +15,7 @@ def update_topic_suggestions(session_id, updates):
     ai_mapper.update_suggestions(updates)
 
 
-def confirm_and_generate(session_id, suggestion_ids, template_code, word_count, image_mode, user_name):
+def confirm_and_generate(session_id, suggestion_ids, word_count, image_mode, user_name):
     data = ai_mapper.get_topic_session(session_id)
     if not data:
         raise ValueError('选题会话不存在')
@@ -30,7 +30,7 @@ def confirm_and_generate(session_id, suggestion_ids, template_code, word_count, 
         session['site_name'],
         session_id,
         session.get('cate_id'),
-        template_code,
+        'default',
         word_count,
         image_mode,
         len(selected),

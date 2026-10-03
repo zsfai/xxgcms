@@ -4,7 +4,10 @@ import time
 
 from apps.api.ai.config import model_config
 from apps.api.ai.mapper import ai_mapper
-from apps.api.ai.prompts.topic_prompts import build_article_system_prompt, build_article_user_prompt
+from apps.api.ai.prompts.topic_prompts import (
+    DEFAULT_ARTICLE_SYSTEM_PROMPT,
+    build_article_user_prompt,
+)
 from apps.api.ai.providers.base import ImageGenerateRequest, TextGenerateRequest
 from apps.api.ai.providers.registry import get_image_provider, get_text_provider
 from apps.api.ai.utils.media_save import save_ai_image, to_media_url
@@ -128,42 +131,23 @@ def run_article_generate(
     site_name,
     title,
     cate_id,
-    template_code='news_general',
     word_count=800,
     image_mode='ai',
     topic_context=None,
     text_model_id=None,
     image_model_id=None,
-    vertical_code=None,
 ):
     start_ms = int(time.time() * 1000)
     title = (title or '').strip()
     if not title:
         raise ValueError('标题不能为空')
     cate_id = int(cate_id or -1)
-    template = ai_mapper.get_prompt_template(template_code) or {}
-    template_name = template.get('name', template_code)
-    vertical = None
-    if vertical_code:
-        from apps.api.ai.service.vertical_service import get_vertical
-        vertical = get_vertical(vertical_code, enabled_only=False)
-    if vertical and vertical.get('article_system_prompt'):
-        system_prompt = vertical['article_system_prompt']
-        article_user_hint = vertical.get('article_user_hint')
-    else:
-        if template.get('system_prompt'):
-            system_prompt = template['system_prompt']
-        else:
-            system_prompt = build_article_system_prompt(template_code)
-        article_user_hint = None
+    system_prompt = DEFAULT_ARTICLE_SYSTEM_PROMPT
     text_config = model_config.resolve_provider(None, 'text_generation')
-    if text_model_id:
-        pass
     cate_name = _get_cate_name(site_name, cate_id)
     ref_titles = _get_ref_titles(site_name, cate_id)
     user_prompt = build_article_user_prompt(
-        title, cate_name, template_name, int(word_count or 800), ref_titles, topic_context,
-        user_hint=article_user_hint,
+        title, cate_name, int(word_count or 800), ref_titles, topic_context,
     )
     text_provider = get_text_provider(text_config.code)
     text_result = text_provider.generate(

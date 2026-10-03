@@ -19,11 +19,8 @@ def run_job(job_id):
         try:
             topic_context = None
             suggestion_id = item.get('suggestion_id')
-            vertical_code = None
             if suggestion_id or job.get('session_id'):
                 sess = ai_mapper.get_topic_session(job.get('session_id'))
-                if sess and sess.get('session'):
-                    vertical_code = sess['session'].get('vertical')
                 if sess and suggestion_id:
                     for s in sess.get('suggestions', []):
                         if s['id'] == suggestion_id:
@@ -33,11 +30,9 @@ def run_job(job_id):
                 job['site_name'],
                 item['title'],
                 job.get('cate_id'),
-                job.get('template_code') or 'news_general',
                 job.get('word_count') or 800,
                 job.get('image_mode') or 'ai',
                 topic_context=topic_context,
-                vertical_code=vertical_code,
             )
             ai_mapper.update_batch_item(
                 item['id'],

@@ -1,14 +1,14 @@
 # coding: utf-8
 import json
-import time
 
 from apps.api.ai.config import model_config
 from apps.api.ai.mapper import ai_mapper
-from apps.api.ai.prompts.search_queries import expand_search_queries
-from apps.api.ai.prompts.topic_prompts import build_topic_user_prompt, format_search_snippets
-from apps.api.ai.providers.base import SearchRequest, TextGenerateRequest
-from apps.api.ai.providers.registry import get_search_provider, get_text_provider
-from apps.api.ai.service.vertical_service import get_vertical
+from apps.api.ai.prompts.topic_prompts import (
+    DEFAULT_TOPIC_SYSTEM_PROMPT,
+    build_topic_user_prompt,
+)
+from apps.api.ai.providers.base import TextGenerateRequest
+from apps.api.ai.providers.registry import get_text_provider
 from apps.api.db.connection import cms_x_connection
 
 
@@ -33,65 +33,28 @@ def _parse_topics_json(content: str):
     return topics
 
 
-def run_topic_suggest(site_name, seed_keyword, vertical, cate_id, suggest_count, search_provider_code, user_name):
+def run_topic_suggest(site_name, seed_keyword, cate_id, suggest_count, user_name):
     seed = (seed_keyword or '').strip()
     if not seed:
         raise ValueError('种子词不能为空')
     suggest_count = min(int(suggest_count or 10), 15)
-    vertical = (vertical or 'general').strip()
-    search_code = (search_provider_code or '').strip().lower()
-    use_search = search_code not in ('', 'none', 'skip', 'off')
     text_config = model_config.resolve_provider(None, 'text_generation')
-    vertical_row = get_vertical(vertical, enabled_only=True)
-    if not vertical_row:
-        vertical_row = get_vertical('general', enabled_only=True)
-    if not vertical_row:
-        raise ValueError('未配置可用垂类，请先在「垂类管理」中添加并启用')
-    vertical_code = vertical_row.get('code') or vertical
     session_id = ai_mapper.create_topic_session(
-        site_name, seed, vertical_code, cate_id, suggest_count,
-        search_code if use_search else 'none',
+        site_name, seed, 'general', cate_id, suggest_count,
+        'none',
         user_name,
     )
-    search_degraded = not use_search
-    snippets_text = ''
-    search_items = []
-    queries = expand_search_queries(seed, query_templates=vertical_row.get('search_queries'), vertical=vertical_code)
-    if use_search:
-        try:
-            search_config = model_config.resolve_provider(search_provider_code, 'web_search')
-            provider = get_search_provider(search_config.code)
-            result = provider.search(
-                SearchRequest(queries=queries, max_results_per_query=5),
-                search_config,
-            )
-            search_items = result.items
-            for q in queries:
-                ai_mapper.insert_search_log(session_id, q, search_config.code, len(search_items), {'ok': True})
-            snippets_text = format_search_snippets(search_items)
-            search_degraded = False
-        except Exception as exc:
-            search_degraded = True
-            snippets_text = (
-                '（联网检索未成功，请基于种子词与常识给出选题，时效性内容标注待核实）\n种子词：%s'
-            ) % seed
-            ai_mapper.insert_search_log(
-                session_id, seed, search_code, 0, {'error': str(exc)[:200]},
-            )
-    else:
-        snippets_text = (
-            '（未启用联网检索，请基于种子词与行业常识发散选题，涉及具体政策/票价/时间请标注待核实）\n'
-            '种子词：%s' % seed
-        )
+    context_text = (
+        '请基于种子词提出对读者有实际帮助的选题；涉及具体政策/价格/时间请标注待核实。\n'
+        '种子词：%s' % seed
+    )
     cate_name = _get_cate_name(site_name, cate_id)
-    system_prompt = vertical_row.get('topic_system_prompt') or ''
+    system_prompt = DEFAULT_TOPIC_SYSTEM_PROMPT
     user_prompt = build_topic_user_prompt(
         seed,
-        vertical_row.get('name') or vertical_code,
         cate_name,
         suggest_count,
-        snippets_text,
-        user_hint=vertical_row.get('topic_user_hint'),
+        context_text,
     )
     text_provider = get_text_provider(text_config.code)
     req = TextGenerateRequest(
@@ -108,18 +71,13 @@ def run_topic_suggest(site_name, seed_keyword, vertical, cate_id, suggest_count,
         topics = _parse_topics_json(text_result.content)
     enriched = []
     for t in topics:
-        refs = []
-        for idx in t.get('ref_indexes', []) or []:
-            if 1 <= idx <= len(search_items):
-                item = search_items[idx - 1]
-                refs.append({'title': item.title, 'url': item.url, 'snippet': item.snippet})
-        t['refs'] = refs
+        t['refs'] = []
         enriched.append(t)
     ai_mapper.insert_suggestions(session_id, enriched)
     ai_mapper.update_topic_session(
         session_id,
         status='ready',
-        search_degraded='Y' if search_degraded else 'N',
+        search_degraded='N',
         text_model=text_config.default_model,
     )
     return ai_mapper.get_topic_session(session_id)

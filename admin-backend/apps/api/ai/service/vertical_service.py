@@ -53,24 +53,18 @@ def seed_verticals_if_empty():
             'description': '旅游目的地、攻略、门票与出行实用内容',
             'topic_system_prompt': (
                 '你是资深旅游内容策划编辑，熟悉国内旅游目的地、季节玩法、交通住宿与门票政策。'
-                '根据联网检索摘要提炼选题建议。不得捏造检索中未出现的事实；'
+                '根据种子词与行业常识提炼选题建议。不得捏造无法核实的事实；'
                 '不确定的价格、开放时间、政策须标注「待核实」。选题标题适合 SEO，角度清晰、可写性强。'
                 '输出必须是合法 JSON，不要 markdown 代码块。'
             ),
-            'topic_user_hint': '优先推荐有检索依据、对读者有决策价值的选题；避免空泛口号式标题。',
+            'topic_user_hint': '优先推荐对读者有决策价值的选题；避免空泛口号式标题。',
             'article_system_prompt': (
                 '你是专业旅游攻略作者，擅长撰写实用、可落地的出行指南。结构清晰、信息密度高，'
                 '含交通、门票、游玩顺序、避坑等可执行建议。不得捏造票价、开放时间、交通管制。'
                 '时间敏感信息若无法核实须标注待核实。输出纯 JSON，不要 markdown。'
             ),
             'article_user_hint': '正文小节 3-5 个；image_hint 用英文描述场景，便于 AI 配图。',
-            'search_queries': json.dumps([
-                '{seed} 旅游攻略 {year}',
-                '{seed} 最新 门票 政策',
-                '{seed} 必去 景点 推荐',
-                '{seed} 交通 住宿 攻略',
-                '{seed} 最佳旅游时间',
-            ], ensure_ascii=False),
+            'search_queries': json.dumps([], ensure_ascii=False),
             'default_template_code': 'travel_guide',
             'default_word_count': 800,
             'sort_num': 10,
@@ -81,7 +75,7 @@ def seed_verticals_if_empty():
             'name': '资讯',
             'description': '行业动态、政策解读与时事资讯',
             'topic_system_prompt': (
-                '你是资深资讯编辑，擅长从检索结果中提炼有新闻价值、可深度解读的选题。'
+                '你是资深资讯编辑，擅长从种子词提炼有新闻价值、可深度解读的选题。'
                 '不得捏造事实与数据；不确定的信息标注「待核实」。选题应具备时效性与可读性。'
                 '输出必须是合法 JSON，不要 markdown 代码块。'
             ),
@@ -90,12 +84,8 @@ def seed_verticals_if_empty():
                 '你是资深资讯作者，客观准确、逻辑清楚。导语点明核心信息，正文分层展开，避免空话套话。'
                 '不得捏造数据与引述。输出纯 JSON，不要 markdown。'
             ),
-            'article_user_hint': '涉及政策、数据时若检索未证实，正文须写「待核实」或回避具体数字。',
-            'search_queries': json.dumps([
-                '{seed} 最新 动态 {year}',
-                '{seed} 行业 新闻',
-                '{seed} 政策 解读',
-            ], ensure_ascii=False),
+            'article_user_hint': '涉及政策、数据时若无法核实，正文须写「待核实」或回避具体数字。',
+            'search_queries': json.dumps([], ensure_ascii=False),
             'default_template_code': 'news_general',
             'default_word_count': 800,
             'sort_num': 20,
@@ -106,8 +96,8 @@ def seed_verticals_if_empty():
             'name': '通用',
             'description': '通用主题内容，适合多数站点',
             'topic_system_prompt': (
-                '你是资深内容策划编辑，能根据种子词与检索摘要提炼多样化选题。'
-                '不得捏造检索中未出现的事实；不确定信息标注「待核实」。选题互不重复、适合 SEO。'
+                '你是资深内容策划编辑，能根据种子词提炼多样化选题。'
+                '不得捏造无法核实的事实；不确定信息标注「待核实」。选题互不重复、适合 SEO。'
                 '输出必须是合法 JSON，不要 markdown 代码块。'
             ),
             'topic_user_hint': '兼顾入门指南、常见问题、对比选购等读者常搜需求。',
@@ -116,11 +106,7 @@ def seed_verticals_if_empty():
                 '输出纯 JSON，不要 markdown。'
             ),
             'article_user_hint': '正文 3-5 小节；每节配图 hint 用英文描述画面。',
-            'search_queries': json.dumps([
-                '{seed} 介绍',
-                '{seed} 攻略 {year}',
-                '{seed} 常见问题',
-            ], ensure_ascii=False),
+            'search_queries': json.dumps([], ensure_ascii=False),
             'default_template_code': 'news_general',
             'default_word_count': 800,
             'sort_num': 30,
@@ -168,8 +154,6 @@ def create_vertical(payload):
     if not topic_sys or not article_sys:
         raise ValueError('选题与写稿 system 提示不能为空')
     queries = _parse_search_queries(payload.get('search_queries'))
-    if not queries:
-        raise ValueError('请至少配置一条联网检索词模板')
     fields = {
         'code': code,
         'name': name,
@@ -216,8 +200,6 @@ def update_vertical(vertical_id, payload):
         fields['article_user_hint'] = (payload.get('article_user_hint') or '').strip() or None
     if 'search_queries' in payload:
         queries = _parse_search_queries(payload.get('search_queries'))
-        if not queries:
-            raise ValueError('请至少配置一条联网检索词模板')
         fields['search_queries'] = json.dumps(queries, ensure_ascii=False)
     if 'default_template_code' in payload:
         fields['default_template_code'] = (payload.get('default_template_code') or '').strip() or None
