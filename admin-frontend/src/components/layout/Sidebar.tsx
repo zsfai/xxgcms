@@ -36,7 +36,6 @@ const menuSections: MenuSection[] = [
     items: [
       { to: '/sites', label: '站点管理', icon: Globe2 },
       { to: '/ai', label: 'AI 管理', icon: Bot },
-      { to: '/system', label: '系统管理', icon: Settings2 },
     ],
   },
   {
@@ -75,10 +74,11 @@ function pathMatchesMenu(pathname: string, to: string) {
     // 仅匹配 AI 管理子页，避免与 /ai-topics 冲突
     return pathname === '/ai' || pathname.startsWith('/ai/')
   }
-  if (to === '/system') {
-    return pathname === '/system' || pathname.startsWith('/system/')
-  }
   return pathname === to
+}
+
+function isSystemPath(pathname: string) {
+  return pathname === '/system' || pathname.startsWith('/system/')
 }
 
 function SidebarNavItem({
@@ -150,6 +150,55 @@ function SidebarNavItem({
   )
 }
 
+function SystemFooterLink({ collapsed }: { collapsed: boolean }) {
+  const location = useLocation()
+  const isActive = isSystemPath(location.pathname)
+
+  return (
+    <NavLink
+      to="/system"
+      title="日志"
+      className={cn(
+        'group flex rounded-xl transition-colors duration-150',
+        collapsed
+          ? 'flex-col items-center gap-1 px-1 py-2'
+          : 'items-center justify-between gap-2 px-3 py-2 text-[13px]',
+        isActive
+          ? 'sidebar-nav-active'
+          : 'text-muted-foreground hover:bg-primary/5 hover:text-primary',
+      )}
+    >
+      <span className={cn('flex min-w-0 items-center', collapsed ? 'flex-col gap-1' : 'gap-2.5')}>
+        <span
+          className={cn(
+            'flex shrink-0 items-center justify-center rounded-md transition-colors',
+            collapsed ? 'h-8 w-8' : 'h-7 w-7',
+            isActive
+              ? 'bg-primary-foreground/15 text-primary-foreground'
+              : 'text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary',
+          )}
+        >
+          <Settings2 className="h-[18px] w-[18px]" {...iconProps} />
+        </span>
+        {!collapsed && (
+          <span className={cn('truncate leading-none', isActive && 'text-primary-foreground')}>
+            日志
+          </span>
+        )}
+      </span>
+      <span
+        className={cn(
+          'shrink-0 tabular-nums leading-none',
+          collapsed ? 'text-[10px]' : 'text-[11px]',
+          isActive ? 'text-primary-foreground/80' : 'text-muted-foreground/70',
+        )}
+      >
+        v{APP_VERSION}
+      </span>
+    </NavLink>
+  )
+}
+
 export function Sidebar() {
   const collapsed = useAppStore((s) => s.sidebarCollapsed)
   const toggleSidebar = useAppStore((s) => s.toggleSidebar)
@@ -211,12 +260,8 @@ export function Sidebar() {
         })}
       </nav>
 
-      <div className={cn('mt-auto shrink-0 px-3 pb-3 pt-2', collapsed && 'px-2')}>
-        <div className="mx-auto flex w-fit items-center justify-center rounded-full bg-neutral-500/[0.06] px-2.5 py-1 dark:bg-neutral-400/[0.08]">
-          <span className="text-[10px] leading-none tabular-nums text-neutral-400 dark:text-neutral-500">
-            v{APP_VERSION}
-          </span>
-        </div>
+      <div className={cn('mt-auto shrink-0 border-t border-border px-2 py-2', collapsed && 'px-1.5')}>
+        <SystemFooterLink collapsed={collapsed} />
       </div>
     </aside>
   )

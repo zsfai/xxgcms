@@ -48,6 +48,7 @@ tar -czf "${ARCHIVE}" \
   docker-compose.offline.yml \
   .env.docker.example \
   .dockerignore \
+  docs/CHANGELOG.md \
   make-offline-bundle.sh \
   scripts/offline-pack
 
